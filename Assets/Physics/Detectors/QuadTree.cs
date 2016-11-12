@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using FixedPointMath;
 
+/// <summary>
+/// Generic quadtree, used for spatial subdivision and collision detection.
+/// </summary>
+/// <typeparam name="T">type inheriting from PhysicsObject</typeparam>
 public class QuadTree<T> where T : PhysicsObject {
 
     private static Vector2f[] OFFSET = new Vector2f[] {

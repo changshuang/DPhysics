@@ -17,7 +17,6 @@ public class PhysicsEngine : MonoBehaviour{
     private static int bodyCount;
 
     private List<PhysicsObject> objects;
-    private List<KeyValuePair<DCollider, DCollider>> collisions;
 
     private CollisionDetector detector;
     private bool simulate;
@@ -32,7 +31,6 @@ public class PhysicsEngine : MonoBehaviour{
         instance = this;
         bodyCount = 0;
         objects = new List<PhysicsObject>();
-        collisions = new List<KeyValuePair<DCollider, DCollider>>();
         detector = new HashGridDetector(cellSize, sceneWidth, sceneHeight);
         simulate = false;
     }
@@ -56,6 +54,9 @@ public class PhysicsEngine : MonoBehaviour{
         }
     }
 
+    /// <summary>
+    /// Draws info about the simulation as a GUI.
+    /// </summary>
     void OnGUI() {
         Rect label = new Rect(100, 100, 300, 20);
         GUIStyle style = new GUIStyle();

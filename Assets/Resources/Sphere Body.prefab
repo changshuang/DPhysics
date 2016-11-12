@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63757fa59312b2943be92c8cc02caf4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
+  speed: 40
   mass: 1
   restitution: 1
   friction: 0.01

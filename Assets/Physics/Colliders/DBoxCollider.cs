@@ -1,6 +1,4 @@
-﻿using System;
-using FixedPointMath;
-using UnityEngine;
+﻿using FixedPointMath;
 
 /// <summary>
 /// 2D collider representing a rectangle, using fixed point math. It is defined by the minimum and

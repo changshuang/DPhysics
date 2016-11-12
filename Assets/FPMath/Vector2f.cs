@@ -2,6 +2,9 @@
 using FixedPointMath;
 
 namespace FixedPointMath {
+    /// <summary>
+    /// Struct defining a 2D vector using fixed point math.
+    /// </summary>
     public struct Vector2f {
         public intf x;
         public intf y;

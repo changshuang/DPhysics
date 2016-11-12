@@ -1,7 +1,12 @@
 ﻿namespace FixedPointMath {
+
+    /// <summary>
+    /// Adaptation of the FInt structure from x4000
+    /// original source: http://stackoverflow.com/questions/605124/fixed-point-math-in-c
+    /// </summary>
     public struct intf {
         public long rawValue;
-        public const int SHIFT_AMOUNT = 12; //12 is 4096
+        public const int SHIFT_AMOUNT = 12;
 
         public const long oneL = 1 << SHIFT_AMOUNT;
         public const int oneI = 1 << SHIFT_AMOUNT;

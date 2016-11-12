@@ -1,9 +1,11 @@
 ﻿using FixedPointMath;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
-
+/// <summary>
+/// Generic class for quadtree nodes.
+/// </summary>
+/// <typeparam name="T">type inheriting from PhysicsObject</typeparam>
 public class QuadtreeNode<T> where T : PhysicsObject {
 
     private int size;

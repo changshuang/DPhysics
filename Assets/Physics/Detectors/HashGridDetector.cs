@@ -4,24 +4,33 @@ using System;
 using System.Collections.Generic;
 using FixedPointMath;
 
+/// <summary>
+/// Collision detector using spatial hash grids.
+/// </summary>
 public class HashGridDetector : CollisionDetector {
 
     private int cellSize;
     private Cell[,] cells;
-    private int sceneWidth;
-    private int sceneHeight;
     private int rows;
     private int cols;
 
+    /// <summary>
+    /// Creates a new detector with the given cell size, height and width.
+    /// </summary>
+    /// <param name="cellSize">size of a single cell</param>
+    /// <param name="sceneWidth">total scene width</param>
+    /// <param name="sceneHeight">total scene height</param>
     public HashGridDetector(int cellSize, int sceneWidth, int sceneHeight) {
         this.cellSize = cellSize;
-        this.sceneWidth = sceneWidth;
-        this.sceneHeight = sceneHeight;
         this.rows = sceneWidth / cellSize;
         this.cols = sceneHeight / cellSize;
         cells = new Cell[rows, cols];
     }
 
+    /// <summary>
+    /// Inserts a new object into the detector.
+    /// </summary>
+    /// <param name="obj">the object</param>
     public void Insert(PhysicsObject obj) {
         DBoxCollider box = obj.Collider.GetContainer();
         Coord min = Hash(box.Min);
@@ -36,6 +45,10 @@ public class HashGridDetector : CollisionDetector {
         }
     }
 
+    /// <summary>
+    /// Removes the given object from the grid.
+    /// </summary>
+    /// <param name="obj">the rigid body</param>
     public void Remove(PhysicsObject obj) {
         DBoxCollider box = obj.Collider.GetContainer();
         Coord min = Hash(box.Min);
@@ -50,6 +63,10 @@ public class HashGridDetector : CollisionDetector {
         }
     }
 
+    /// <summary>
+    /// Returns a set of collisions, iterating through each active cell.
+    /// </summary>
+    /// <returns>set of collisions</returns>
     public HashSet<Intersection> FindPotentialCollisions() {
         HashSet<Intersection> collisionSet = new HashSet<Intersection>();
         foreach (Cell c in cells) {
@@ -60,6 +77,9 @@ public class HashGridDetector : CollisionDetector {
         return collisionSet;
     }
 
+    /// <summary>
+    /// Draws the grid using gizmos. Blue indicates a free cell, red an occupied one.
+    /// </summary>
     public void Draw() {
         if (cells == null)
             return;
@@ -73,23 +93,45 @@ public class HashGridDetector : CollisionDetector {
         }
     }
 
+    /// <summary>
+    /// Returns the coordinates of the cell containing the given point.
+    /// </summary>
+    /// <param name="point"></param>
+    /// <returns></returns>
     private Coord Hash(Vector2f point) {
         int x = (int)(point.x / cellSize);
         int y = (int)(point.y / cellSize);
         return new Coord(x, y);
     }
 
+    /// <summary>
+    /// Checks whether the given coordinate lies inside the grid bounds.
+    /// </summary>
+    /// <param name="coord">the coordinates to check</param>
+    /// <returns></returns>
     private bool IsInsideBounds(Coord coord) {
         return coord.x >= 0 && coord.x < rows &&
                 coord.y >= 0 && coord.y < cols;
     }
     
+    /// <summary>
+    /// Adds a new object to the bucket of the cell in the given coordinates.
+    /// </summary>
+    /// <param name="obj">object to insert</param>
+    /// <param name="x">line of the cell</param>
+    /// <param name="y">column of the cell</param>
     private void Insert(PhysicsObject obj, int x, int y) {
         if (cells[x, y] == null)
             cells[x, y] = new Cell();
         cells[x, y].Insert(obj);
     }
 
+    /// <summary>
+    /// REmoves the object from the bucket of the cell in the given coordinates.
+    /// </summary>
+    /// <param name="obj">object to remove</param>
+    /// <param name="x">line of the cell</param>
+    /// <param name="y">column of the cell</param>
     private void Remove(PhysicsObject obj, int x, int y) {
         if (cells[x, y] == null)
             return;
@@ -97,6 +139,9 @@ public class HashGridDetector : CollisionDetector {
     }
 }
 
+/// <summary>
+/// Structure for interger coordinates.
+/// </summary>
 public struct Coord {
     public int x;
     public int y;
@@ -107,26 +152,47 @@ public struct Coord {
     }
 }
 
+/// <summary>
+/// Class defining a single grid cell.
+/// </summary>
 public class Cell {
 
     private List<PhysicsObject> bucket;
 
+    /// <summary>
+    /// Creates a new cell, initializing the bucket list.
+    /// </summary>
     public Cell() {
         this.bucket = new List<PhysicsObject>();
     }
 
+    /// <summary>
+    /// Checks whether the current cell contains objects or not.
+    /// </summary>
     public bool Active {
         get { return bucket.Count > 0; }
     }
 
+    /// <summary>
+    /// Inserts a new object into the bucket list.
+    /// </summary>
+    /// <param name="obj">the object</param>
     public void Insert(PhysicsObject obj) {
         this.bucket.Add(obj);
     }
 
+    /// <summary>
+    /// Removes the given object from the bucket list.
+    /// </summary>
+    /// <param name="obj">the object</param>
     public bool Remove(PhysicsObject obj) {
         return this.bucket.Remove(obj);
     }
 
+    /// <summary>
+    /// Creates a set of all the collisions found inside the cell.
+    /// </summary>
+    /// <param name="intersections">hash set of intersections</param>
     public void FindCollisions(HashSet<Intersection> intersections) {
         if (!Active || bucket.Count < 2)
             return;

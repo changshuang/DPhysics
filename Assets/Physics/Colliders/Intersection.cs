@@ -2,6 +2,9 @@
 using System.Collections;
 using FixedPointMath;
 
+/// <summary>
+/// Class representing a collider manifold, with all the info about the collision.
+/// </summary>
 public class Intersection {
 
     private PhysicsObject objA;
@@ -11,6 +14,13 @@ public class Intersection {
     private int hash;
     private bool trigger;
 
+    /// <summary>
+    /// Creates a new collision manifold between the given objects.
+    /// </summary>
+    /// <param name="a">first rigid body</param>
+    /// <param name="b">second rigid body</param>
+    /// <param name="normal">collision normal</param>
+    /// <param name="distance">penetration</param>
     public Intersection(PhysicsObject a, PhysicsObject b, Vector2f normal, intf distance)
     {
         this.objA = a;
@@ -21,6 +31,11 @@ public class Intersection {
         GenerateHash();
     }
 
+    /// <summary>
+    /// Constructor used for trigger collisions (no collision data required)
+    /// </summary>
+    /// <param name="a">first object</param>
+    /// <param name="b">second object</param>
     public Intersection(PhysicsObject a, PhysicsObject b) {
         this.objA = a;
         this.objB = b;
@@ -28,29 +43,46 @@ public class Intersection {
         GenerateHash();
     }
 
+    /// <summary>
+    /// Returns the collision normal
+    /// </summary>
     public Vector2f Normal {
         get { return this.normal; }
     }
 
+    /// <summary>
+    /// Returns the penetration.
+    /// </summary>
     public intf Distance {
         get { return this.distance; }
     }
 
+    /// <summary>
+    /// Returns the first rigid body.
+    /// </summary>
+    /// <returns>the first body</returns>
     public PhysicsObject GetA() {
         return this.objA;
     }
 
+    /// <summary>
+    /// Returns the second rigid body.
+    /// </summary>
+    /// <returns>the second body</returns>
     public PhysicsObject GetB() {
         return this.objB;
     }
 
+    /// <summary>
+    /// Checks whether the current manifold is a trigger or not.
+    /// </summary>
+    /// <returns>true if it's a trigger, false otherwise.</returns>
     public bool IsTrigger() {
         return this.trigger;
     }
 
     /// <summary>
-    /// Combine the two identifiers using a variant to the Szudzik's function, removing the chance for duplicate
-    /// symmetric pairs. The relatively small number of physics bodies inside the scene allows the use of integers.
+    /// Returns the intersection hash code.
     /// </summary>
     /// <returns>integer representing a unique pair (excluding symmetrical couples)</returns>
     public override int GetHashCode() {
@@ -75,6 +107,10 @@ public class Intersection {
         return "Collision <" + objA + ", " + objB + ">";
     }
 
+    /// <summary>
+    /// Combines the two identifiers using a variant of the Szudzik's function, removing the chance for duplicate
+    /// symmetric pairs. The relatively small number of physics bodies inside the scene allows the use of integers.
+    /// </summary>
     private void GenerateHash() {
         int hashA = objA.GetHashCode();
         int hashB = objB.GetHashCode();

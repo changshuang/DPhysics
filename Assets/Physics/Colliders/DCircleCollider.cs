@@ -1,6 +1,4 @@
-﻿using System;
-using FixedPointMath;
-using UnityEngine;
+﻿using FixedPointMath;
 
 /// <summary>
 /// Class representing a 2D circular collider, using fixed point math.

@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
-using System.Collections;
 using FixedPointMath;
 
+/// <summary>
+/// Monobehaviour component used to define a new physics object.
+/// </summary>
 public class PhysicsComponent : MonoBehaviour {
 
     public float speed;
@@ -13,6 +15,7 @@ public class PhysicsComponent : MonoBehaviour {
     private ColliderComponent colliderComponent;
     private PhysicsObject physicsObject;
 
+    //TODO: remove this temporary code
     void Start() {
         this.colliderComponent = GetComponent<ColliderComponent>();
         physicsObject = new PhysicsObject(
@@ -30,7 +33,9 @@ public class PhysicsComponent : MonoBehaviour {
         PhysicsEngine.Instance.AddObject(physicsObject);
     }
 	
-	// Update is called once per frame
+	/// <summary>
+    /// Updates the position of the gameObject by using the physics object data.
+    /// </summary>
 	void Update () {
         this.transform.position = physicsObject.Position.ToVector3();
 	}

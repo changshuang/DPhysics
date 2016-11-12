@@ -1,11 +1,17 @@
 ﻿using UnityEngine;
 using FixedPointMath;
 
+/// <summary>
+/// Monobehaviour component for a box collider.
+/// </summary>
 public class BoxComponent : ColliderComponent {
 
     public Vector2 min;
     public Vector2 max;
 
+    /// <summary>
+    /// Draws the collider.
+    /// </summary>
     void OnDrawGizmos() {
         if (min == max || !drawCollider)
             return;
@@ -22,6 +28,10 @@ public class BoxComponent : ColliderComponent {
         Gizmos.DrawLine(ba, aa);
     }
 
+    /// <summary>
+    /// Generates the "real" collider transforming the current data into fixed point data.
+    /// </summary>
+    /// <returns>a deterministic collider</returns>
     public override DCollider RequireCollider() {
         Vector2 global = new Vector2(transform.position.x, transform.position.z);
         Vector2f fmin = (Vector2f)(min + global);
