@@ -1,5 +1,4 @@
 ﻿using FixedPointMath;
-using UnityEngine;
 
 /// <summary>
 /// Class representing a rigid body inside the physics simulation
