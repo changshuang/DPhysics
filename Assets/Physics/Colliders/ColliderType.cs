@@ -6,5 +6,6 @@ using System.Collections;
 /// </summary>
 public enum ColliderType {
     Box,
-    Circle
+    Circle,
+    Plane
 }

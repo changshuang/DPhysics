@@ -90,10 +90,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63757fa59312b2943be92c8cc02caf4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 40
+  speed: 2
   mass: 1
-  restitution: 1
-  friction: 0.01
+  restitution: 0.2
+  friction: 10
 --- !u!114 &114000010518889046
 MonoBehaviour:
   m_ObjectHideFlags: 1

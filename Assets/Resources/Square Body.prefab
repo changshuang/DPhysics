@@ -92,8 +92,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 10
   mass: 1
-  restitution: 1.1
-  friction: 1
+  restitution: 0.1
+  friction: 4
 --- !u!114 &114000013770659110
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -105,7 +105,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: faff1c15e91de0b419b01c13526195a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  drawCollider: 0
+  drawCollider: 1
   isTrigger: 0
-  min: {x: -3, y: -3}
-  max: {x: 3, y: 3}
+  min: {x: -1.5, y: -1.5}
+  max: {x: 1.5, y: 1.5}

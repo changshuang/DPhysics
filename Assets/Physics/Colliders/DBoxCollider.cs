@@ -89,33 +89,56 @@ public class DBoxCollider : DCollider {
     public override bool Intersects(DBoxCollider other, out Intersection intersection) {
         intersection = null;
 
-        //check if the boxes intersect
-        if (max.x < other.min.x || min.x > other.max.x || max.y < other.min.y || min.y > other.max.y)
-            return false;
-
         //check if one of them is a trigger
         if (this.IsTrigger || other.IsTrigger) {
             intersection = new Intersection(this.Body, other.Body);
             return true;
         }
 
-        Vector2f bodyDist = this.Body.Position - other.Body.Position;
-        Vector2f halfA = GetExtents() / 2;
-        Vector2f halfB = other.GetExtents() / 2;
-        Vector2f distances = halfA + halfB - Vector2f.Abs(bodyDist);
+        // Vector from A to B
+        Vector2f distance = other.Body.Position - Body.Position;
 
-        Vector2f normal;
-        intf penetration;
-        if (distances.x < distances.y) {
-            normal = new Vector2f(-1, 0) * FixedMath.Sign(bodyDist.x);
-            penetration = -distances.x;
+        // Calculate half extents along x axis for each object
+        intf xEntentA = (max.x - min.x) / 2;
+        intf xExtentB = (other.max.x - other.min.x) / 2;
+
+        // Calculate overlap on x axis
+        intf offsetX = xEntentA + xExtentB - FixedMath.Abs(distance.x);
+
+        // SAT test on x axis
+        if (offsetX > 0) {
+            // Calculate half extents along x axis for each object
+            intf yExtentA = (max.y - min.y) / 2;
+            intf yExtentB = (other.max.y - other.min.y) / 2;
+
+            // Calculate overlap on y axis
+            intf offsetY = yExtentA + yExtentB - FixedMath.Abs(distance.y);
+
+            // SAT test on y axis
+            if (offsetY > 0) {
+                Vector2f n;
+                // Find out which axis is axis of least penetration
+                if (offsetX < offsetY) {
+                    // Point towards B knowing that n points from A to B
+                    if (distance.x < 0)
+                        n = new Vector2f(-1, 0);
+                    else
+                        n = new Vector2f(1, 0);
+                    intersection = new Intersection(Body, other.Body, n, offsetX);
+                    return true;
+                }
+                else {
+                    // Point toward B knowing that n points from A to B
+                    if (distance.y < 0)
+                        n = new Vector2f(0, -1);
+                    else
+                        n = new Vector2f(0, 1);
+                    intersection = new Intersection(Body, other.Body, n, offsetY);
+                    return true;
+                }
+            }
         }
-        else {
-            normal = new Vector2f(0, -1) * FixedMath.Sign(bodyDist.y);
-            penetration = -distances.y;
-        }
-        intersection = new Intersection(this.Body, other.Body, normal, penetration);
-        return true;
+        return false;
     }
 
     /// <summary>

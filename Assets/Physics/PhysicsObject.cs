@@ -1,10 +1,12 @@
 ﻿using FixedPointMath;
+using UnityEngine;
 
 /// <summary>
 /// Class representing a rigid body inside the physics simulation
 /// </summary>
 public class PhysicsObject {
 
+    private int identifier;
     private DCollider collider;
     private Vector2f position;
     private Vector2f oldPosition;
@@ -13,7 +15,10 @@ public class PhysicsObject {
     private intf invMass;
     private intf restitution;
     private intf friction;
-    private int identifier;
+    private bool sleeping;
+
+    //sleeping treshold to disable integration on low velocities
+    private static readonly intf treshold = intf.Create(0.001);
 
     /// <summary>
     /// Creates a new rigid body with the given parameters.
@@ -32,6 +37,7 @@ public class PhysicsObject {
         this.restitution = restitution;
         this.friction = friction;
         this.collider.Body = this;
+        this.sleeping = false;
     }
 
     /// <summary>
@@ -99,11 +105,36 @@ public class PhysicsObject {
     }
 
     /// <summary>
+    /// Checks whether this object is active or not.
+    /// </summary>
+    /// <returns>the value of sleeping</returns>
+    public bool IsSleeping() {
+        return this.sleeping;
+    }
+
+    /// <summary>
+    /// Sets the current velocity and updates the sleeping value.
+    /// </summary>
+    /// <param name="v">the new velocity to add.</param>
+    public void SetVelocity(Vector2f v) {
+        this.velocity += v;
+        sleeping = (velocity.SqrtMagnitude < treshold) ? true : false;
+    }
+
+    /// <summary>
     /// Calculates the new position, using the current velocity.
     /// </summary>
     /// <param name="frames">number of frames for the current timestep</param>
     public void Integrate(int frames) {
         position += velocity / frames;
+    }
+
+    /// <summary>
+    /// Adjusts the position of the object to avoid sinking into each other.
+    /// </summary>
+    /// <param name="correction">vector representing the translation</param>
+    public void CorrectPosition(Vector2f correction) {
+        position += correction * invMass;
     }
 
     /// <summary>

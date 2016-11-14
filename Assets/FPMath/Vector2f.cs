@@ -11,6 +11,8 @@ namespace FixedPointMath {
 
         private static Vector2f zero = new Vector2f((intf)0, (intf)0);
         private static Vector2f one = new Vector2f((intf)1, (intf)1);
+        private static Vector2f down = new Vector2f((intf)0, (intf)(-1));
+        private static Vector2f up = new Vector2f((intf)0, (intf)1);
 
         public Vector2f(intf x, intf y) {
             this.x = x;
@@ -43,6 +45,14 @@ namespace FixedPointMath {
 
         public static Vector2f One {
             get { return one; }
+        }
+
+        public static Vector2f Down {
+            get { return down; }
+        }
+
+        public static Vector2f Up {
+            get { return up; }
         }
 
         public intf Magnitude {

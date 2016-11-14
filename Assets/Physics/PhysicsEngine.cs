@@ -8,6 +8,8 @@ using FixedPointMath;
 public class PhysicsEngine : MonoBehaviour{
 
     public const int maxObjectCount = 4096;
+    public const float correctionf = 0.2f;
+    public const float slopf = 0.01f;
     public int sceneWidth;
     public int sceneHeight;
     public int cellSize;
@@ -17,9 +19,10 @@ public class PhysicsEngine : MonoBehaviour{
     private static int bodyCount;
 
     private List<PhysicsObject> objects;
-
     private CollisionDetector detector;
     private bool simulate;
+    private intf correction;
+    private intf slop;
 
     //TODO: remove this
     private GUIStyle style;
@@ -33,6 +36,8 @@ public class PhysicsEngine : MonoBehaviour{
         objects = new List<PhysicsObject>();
         detector = new HashGridDetector(cellSize, sceneWidth, sceneHeight);
         simulate = false;
+        correction = intf.Create(correctionf);
+        slop = intf.Create(slopf);
     }
 
     /// <summary>
@@ -108,12 +113,13 @@ public class PhysicsEngine : MonoBehaviour{
         foreach (Intersection collision in broadPhaseCollisions) {
             if (!collision.IsTrigger()) {
                 ResolveCollision(collision);
+                CorrectPosition(collision);
             }
         }
     
         //for each physics object, apply forces
         foreach(PhysicsObject obj in objects) {
-            if (!obj.IsFixed() && obj.Velocity != Vector2f.Zero) {
+            if (!obj.IsFixed() && !obj.IsSleeping()) {
 
                 Profiler.BeginSample("Remove");
                 detector.Remove(obj);
@@ -145,7 +151,16 @@ public class PhysicsEngine : MonoBehaviour{
         intf j = (-(1 + e) * nvel) / (a.InvMass + b.InvMass);
 
         Vector2f impulse = collision.Normal * j;
-        a.Velocity -= impulse * a.InvMass;
-        b.Velocity += impulse * b.InvMass;
+        a.SetVelocity(-impulse * a.InvMass);
+        b.SetVelocity(impulse * b.InvMass);
+    }
+
+    private void CorrectPosition(Intersection collision) {
+        PhysicsObject a = collision.GetA();
+        PhysicsObject b = collision.GetB();
+        intf penetration = FixedMath.Max(collision.Distance - slop, (intf)0);
+        Vector2f direction = collision.Normal * penetration / (a.InvMass + b.InvMass) * correction;
+        a.CorrectPosition(-direction);
+        b.CorrectPosition(direction);
     }
 }
