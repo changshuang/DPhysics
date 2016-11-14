@@ -1,4 +1,5 @@
 ﻿using FixedPointMath;
+using UnityEngine;
 
 /// <summary>
 /// Class representing a rigid body inside the physics simulation
@@ -8,7 +9,8 @@ public class PhysicsObject {
     private int identifier;
     private DCollider collider;
     private Vector2f position;
-    private Vector2f oldPosition;
+    private Vector2f prevPosition;
+    private Vector2f oldColliderPosition;
     private Vector2f velocity;
     private intf mass;
     private intf invMass;
@@ -30,7 +32,8 @@ public class PhysicsObject {
     public PhysicsObject(DCollider collider, Vector2f position, intf mass, intf restitution, intf friction) {
         this.collider = collider;
         this.position = position;
-        this.oldPosition = position;
+        this.oldColliderPosition = position;
+        this.prevPosition = position;
         this.mass = mass;
         this.invMass = (mass > 0) ? ((intf)1 / mass) : (intf)0;
         this.restitution = restitution;
@@ -40,13 +43,10 @@ public class PhysicsObject {
     }
 
     /// <summary>
-    /// Returns the current collider, transofrming the position to the current one.
+    /// Returns the current collider.
     /// </summary>
     public DCollider Collider {
         get {
-            Vector2f translation = position - oldPosition;
-            oldPosition = position;
-            collider.Transform(translation);
             return collider;
         }
     }
@@ -122,9 +122,13 @@ public class PhysicsObject {
 
     /// <summary>
     /// Calculates the new position, using the current velocity.
+    /// The function also adjusts the collider's position.
     /// </summary>
     /// <param name="frames">number of frames for the current timestep</param>
     public void Integrate(int frames) {
+        Vector2f translation = position - prevPosition;
+        prevPosition = position;
+        collider.Transform(translation);
         position += velocity / frames;
     }
 
@@ -134,6 +138,13 @@ public class PhysicsObject {
     /// <param name="correction">vector representing the translation</param>
     public void CorrectPosition(Vector2f correction) {
         position += correction * invMass;
+    }
+
+    public Vector3 InterpolatedPosition() {
+        Vector3 previous = prevPosition.ToVector3();
+        Vector3 current = position.ToVector3();
+        float a = PhysicsEngine.alpha;
+        return (current * a + previous * (1 - a));
     }
 
     /// <summary>

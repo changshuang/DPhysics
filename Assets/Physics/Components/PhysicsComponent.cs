@@ -37,6 +37,6 @@ public class PhysicsComponent : MonoBehaviour {
     /// Updates the position of the gameObject by using the physics object data.
     /// </summary>
 	void Update () {
-        this.transform.position = physicsObject.Position.ToVector3();
+        this.transform.position = physicsObject.InterpolatedPosition();
 	}
 }

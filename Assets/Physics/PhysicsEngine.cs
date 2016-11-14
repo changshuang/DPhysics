@@ -15,6 +15,7 @@ public class PhysicsEngine : MonoBehaviour{
     public int cellSize;
     public bool draw;
 
+    public static float alpha;
     private static PhysicsEngine instance;
     private static int bodyCount;
 
@@ -47,16 +48,6 @@ public class PhysicsEngine : MonoBehaviour{
         simulate = true;
         style = new GUIStyle();
         style.normal.textColor = Color.white;
-    }
-
-    /// <summary>
-    /// Calculates the current number of frames and updates the physics.
-    /// </summary>
-    void Update() {
-        if (simulate) {
-            int frames = (int)(1 / Time.deltaTime);
-            UpdatePhysics(frames);
-        }
     }
 
     /// <summary>
@@ -105,7 +96,9 @@ public class PhysicsEngine : MonoBehaviour{
     /// Main physics loop, find collisions, resolve them and move the bodies.
     /// </summary>
     /// <param name="delta"> amount of time for this simulation step</param>
-    private void UpdatePhysics(int frames) {
+    public void UpdatePhysics(int frames) {
+        if (!simulate)
+            return;
 
         Profiler.BeginSample("Collision detection");
         HashSet<Intersection> broadPhaseCollisions = detector.FindPotentialCollisions();
