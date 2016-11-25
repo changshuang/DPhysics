@@ -305,7 +305,7 @@ MonoBehaviour:
   sceneWidth: 256
   sceneHeight: 256
   cellSize: 16
-  draw: 1
+  draw: 0
 --- !u!4 &1154653339
 Transform:
   m_ObjectHideFlags: 0
@@ -745,7 +745,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   circle: {fileID: 1000011442153470, guid: 1c7feb80c8f4f9e49bd067c6c7009ddf, type: 2}
   square: {fileID: 1000011320297752, guid: 25de641f093ad3143acdd8a4295c0721, type: 2}
-  instances: 0
+  instances: 50
 --- !u!4 &1768374540
 Transform:
   m_ObjectHideFlags: 0

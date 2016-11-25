@@ -68,7 +68,7 @@ public class DCircleCollider : DCollider {
     /// <param name="other">box collider to check</param>
     /// <param name="intersection">the collision data, <code>null</code> if no collision has been detected.</param>
     /// <returns>true if the colliders intersect, false otherwise.</returns>
-    public override bool Intersects(DBoxCollider other, out Intersection intersection) {
+    public override bool Intersects(DBoxCollider other, out Manifold intersection) {
         intersection = null;
 
         Vector2f halfExtents = other.GetExtents() / 2;
@@ -84,7 +84,7 @@ public class DCircleCollider : DCollider {
 
         //check if one of them is a trigger
         if (this.IsTrigger || other.IsTrigger) {
-            intersection = new Intersection(this.Body, other.Body);
+            intersection = new Manifold(this.Body, other.Body);
             return true;
         }
 
@@ -99,7 +99,7 @@ public class DCircleCollider : DCollider {
             penetration = radius;
             normal = new Vector2f(1, 0);
         }
-        intersection = new Intersection(this.Body, other.Body, normal, penetration);
+        intersection = new Manifold(this.Body, other.Body, normal, penetration);
         return true;
     }
 
@@ -110,7 +110,7 @@ public class DCircleCollider : DCollider {
     /// <param name="other">the circle to check</param>
     /// <param name="intersection">the collision data, <code>null</code> if no collision has been detected.</param>
     /// <returns>true if the colliders intersect, false otherwise.</returns>
-    public override bool Intersects(DCircleCollider other, out Intersection intersection) {
+    public override bool Intersects(DCircleCollider other, out Manifold intersection) {
         intersection = null;
         intf rDistance = this.radius + other.radius;
         intf sqrRadiusDistance = rDistance * rDistance;
@@ -120,7 +120,7 @@ public class DCircleCollider : DCollider {
 
         //check if one of them is a trigger
         if (this.IsTrigger || other.IsTrigger) {
-            intersection = new Intersection(this.Body, other.Body);
+            intersection = new Manifold(this.Body, other.Body);
             return true;
         }
 
@@ -135,7 +135,7 @@ public class DCircleCollider : DCollider {
             penetration = this.radius;
             normal = new Vector2f((intf)1, (intf)0);
         }
-        intersection = new Intersection(this.Body, other.Body, normal, penetration);
+        intersection = new Manifold(this.Body, other.Body, normal, penetration);
         return true;
     }
 

@@ -5,8 +5,8 @@ using FixedPointMath;
 /// <summary>
 /// Generic quadtree, used for spatial subdivision and collision detection.
 /// </summary>
-/// <typeparam name="T">type inheriting from PhysicsObject</typeparam>
-public class QuadTree<T> where T : PhysicsObject {
+/// <typeparam name="T">type inheriting from DBody</typeparam>
+public class QuadTree<T> where T : DBody {
 
     private static Vector2f[] OFFSET = new Vector2f[] {
         new Vector2f(0, 0),
@@ -43,7 +43,7 @@ public class QuadTree<T> where T : PhysicsObject {
         }
     }
 
-    public void FindCollisions(HashSet<Intersection> collisionSet) {
+    public void FindCollisions(HashSet<Manifold> collisionSet) {
         FindCollisions(root, collisionSet);
     }
 
@@ -83,7 +83,7 @@ public class QuadTree<T> where T : PhysicsObject {
         }
     }
 
-    private void FindCollisions(QuadtreeNode<T> node, HashSet<Intersection> collisionSet) {
+    private void FindCollisions(QuadtreeNode<T> node, HashSet<Manifold> collisionSet) {
         if (node == null)
             return;
 

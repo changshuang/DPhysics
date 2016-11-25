@@ -1,14 +1,12 @@
-﻿using UnityEngine;
-using System.Collections;
-using FixedPointMath;
+﻿using FixedPointMath;
 
 /// <summary>
 /// Class representing a collider manifold, with all the info about the collision.
 /// </summary>
-public class Intersection {
+public class Manifold {
 
-    private PhysicsObject objA;
-    private PhysicsObject objB;
+    private DBody objA;
+    private DBody objB;
     private Vector2f normal;
     private intf distance;
     private int hash;
@@ -21,7 +19,7 @@ public class Intersection {
     /// <param name="b">second rigid body</param>
     /// <param name="normal">collision normal</param>
     /// <param name="distance">penetration</param>
-    public Intersection(PhysicsObject a, PhysicsObject b, Vector2f normal, intf distance)
+    public Manifold(DBody a, DBody b, Vector2f normal, intf distance)
     {
         this.objA = a;
         this.objB = b;
@@ -36,7 +34,7 @@ public class Intersection {
     /// </summary>
     /// <param name="a">first object</param>
     /// <param name="b">second object</param>
-    public Intersection(PhysicsObject a, PhysicsObject b) {
+    public Manifold(DBody a, DBody b) {
         this.objA = a;
         this.objB = b;
         this.trigger = true;
@@ -61,7 +59,7 @@ public class Intersection {
     /// Returns the first rigid body.
     /// </summary>
     /// <returns>the first body</returns>
-    public PhysicsObject GetA() {
+    public DBody GetA() {
         return this.objA;
     }
 
@@ -69,7 +67,7 @@ public class Intersection {
     /// Returns the second rigid body.
     /// </summary>
     /// <returns>the second body</returns>
-    public PhysicsObject GetB() {
+    public DBody GetB() {
         return this.objB;
     }
 
@@ -95,8 +93,8 @@ public class Intersection {
     /// <param name="obj">the object to be compared-</param>
     /// <returns>true if they both contain the same physics objects, false otherwise</returns>
     public override bool Equals(object obj) {
-        if (obj is Intersection) {
-            Intersection other = (Intersection)obj;
+        if (obj is Manifold) {
+            Manifold other = (Manifold)obj;
             return ((objA.Equals(other.objA) && objB.Equals(other.objB)) ||
                     (objA.Equals(other.objB) && objB.Equals(other.objB)));
         }

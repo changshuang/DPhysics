@@ -20,11 +20,11 @@ public class DPlaneCollider : DCollider {
         throw new NotImplementedException();
     }
 
-    public override bool Intersects(DBoxCollider other, out Intersection intersection) {
+    public override bool Intersects(DBoxCollider other, out Manifold intersection) {
         throw new NotImplementedException();
     }
 
-    public override bool Intersects(DCircleCollider other, out Intersection intersection) {
+    public override bool Intersects(DCircleCollider other, out Manifold intersection) {
         throw new NotImplementedException();
     }
 

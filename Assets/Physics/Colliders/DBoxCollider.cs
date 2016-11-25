@@ -75,7 +75,7 @@ public class DBoxCollider : DCollider {
     /// <param name="other">the second collider</param>
     /// <param name="intersection">the collision data, <code>null</code> if no collision has been detected.</param>
     /// <returns></returns>
-    public override bool Intersects(DCircleCollider other, out Intersection intersection) {
+    public override bool Intersects(DCircleCollider other, out Manifold intersection) {
         return other.Intersects(this, out intersection);
     }
 
@@ -86,12 +86,12 @@ public class DBoxCollider : DCollider {
     /// <param name="other">bounding box to check</param>
     /// <param name="intersection">the collision data, <code>null</code> if no collision has been detected.</param>
     /// <returns></returns>
-    public override bool Intersects(DBoxCollider other, out Intersection intersection) {
+    public override bool Intersects(DBoxCollider other, out Manifold intersection) {
         intersection = null;
 
         //check if one of them is a trigger
         if (this.IsTrigger || other.IsTrigger) {
-            intersection = new Intersection(this.Body, other.Body);
+            intersection = new Manifold(this.Body, other.Body);
             return true;
         }
 
@@ -124,7 +124,7 @@ public class DBoxCollider : DCollider {
                         n = new Vector2f(-1, 0);
                     else
                         n = new Vector2f(1, 0);
-                    intersection = new Intersection(Body, other.Body, n, offsetX);
+                    intersection = new Manifold(Body, other.Body, n, offsetX);
                     return true;
                 }
                 else {
@@ -133,7 +133,7 @@ public class DBoxCollider : DCollider {
                         n = new Vector2f(0, -1);
                     else
                         n = new Vector2f(0, 1);
-                    intersection = new Intersection(Body, other.Body, n, offsetY);
+                    intersection = new Manifold(Body, other.Body, n, offsetY);
                     return true;
                 }
             }

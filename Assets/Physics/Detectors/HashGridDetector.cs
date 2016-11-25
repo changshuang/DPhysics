@@ -7,7 +7,7 @@ using FixedPointMath;
 /// <summary>
 /// Collision detector using spatial hash grids.
 /// </summary>
-public class HashGridDetector : CollisionDetector {
+public class HashGridDetector : ICollisionDetector {
 
     private int cellSize;
     private Cell[,] cells;
@@ -31,7 +31,7 @@ public class HashGridDetector : CollisionDetector {
     /// Inserts a new object into the detector.
     /// </summary>
     /// <param name="obj">the object</param>
-    public void Insert(PhysicsObject obj) {
+    public void Insert(DBody obj) {
         DBoxCollider box = obj.Collider.GetContainer();
         Coord min = Hash(box.Min);
         Coord max = Hash(box.Max);
@@ -49,7 +49,7 @@ public class HashGridDetector : CollisionDetector {
     /// Removes the given object from the grid.
     /// </summary>
     /// <param name="obj">the rigid body</param>
-    public void Remove(PhysicsObject obj) {
+    public void Remove(DBody obj) {
         DBoxCollider box = obj.Collider.GetContainer();
         Coord min = Hash(box.Min);
         Coord max = Hash(box.Max);
@@ -67,8 +67,8 @@ public class HashGridDetector : CollisionDetector {
     /// Returns a set of collisions, iterating through each active cell.
     /// </summary>
     /// <returns>set of collisions</returns>
-    public HashSet<Intersection> FindPotentialCollisions() {
-        HashSet<Intersection> collisionSet = new HashSet<Intersection>();
+    public HashSet<Manifold> FindPotentialCollisions() {
+        HashSet<Manifold> collisionSet = new HashSet<Manifold>();
         foreach (Cell c in cells) {
             if (c != null && c.Active) {
                 c.FindCollisions(collisionSet);
@@ -120,7 +120,7 @@ public class HashGridDetector : CollisionDetector {
     /// <param name="obj">object to insert</param>
     /// <param name="x">line of the cell</param>
     /// <param name="y">column of the cell</param>
-    private void Insert(PhysicsObject obj, int x, int y) {
+    private void Insert(DBody obj, int x, int y) {
         if (cells[x, y] == null)
             cells[x, y] = new Cell();
         cells[x, y].Insert(obj);
@@ -132,7 +132,7 @@ public class HashGridDetector : CollisionDetector {
     /// <param name="obj">object to remove</param>
     /// <param name="x">line of the cell</param>
     /// <param name="y">column of the cell</param>
-    private void Remove(PhysicsObject obj, int x, int y) {
+    private void Remove(DBody obj, int x, int y) {
         if (cells[x, y] == null)
             return;
         cells[x, y].Remove(obj);
@@ -157,13 +157,13 @@ public struct Coord {
 /// </summary>
 public class Cell {
 
-    private List<PhysicsObject> bucket;
+    private List<DBody> bucket;
 
     /// <summary>
     /// Creates a new cell, initializing the bucket list.
     /// </summary>
     public Cell() {
-        this.bucket = new List<PhysicsObject>();
+        this.bucket = new List<DBody>();
     }
 
     /// <summary>
@@ -177,7 +177,7 @@ public class Cell {
     /// Inserts a new object into the bucket list.
     /// </summary>
     /// <param name="obj">the object</param>
-    public void Insert(PhysicsObject obj) {
+    public void Insert(DBody obj) {
         this.bucket.Add(obj);
     }
 
@@ -185,7 +185,7 @@ public class Cell {
     /// Removes the given object from the bucket list.
     /// </summary>
     /// <param name="obj">the object</param>
-    public bool Remove(PhysicsObject obj) {
+    public bool Remove(DBody obj) {
         return this.bucket.Remove(obj);
     }
 
@@ -193,13 +193,13 @@ public class Cell {
     /// Creates a set of all the collisions found inside the cell.
     /// </summary>
     /// <param name="intersections">hash set of intersections</param>
-    public void FindCollisions(HashSet<Intersection> intersections) {
+    public void FindCollisions(HashSet<Manifold> intersections) {
         if (!Active || bucket.Count < 2)
             return;
 
         for (int i = 0; i < bucket.Count; i++) {
             for (int j = i+1; j < bucket.Count; j++) {
-                Intersection intersection;
+                Manifold intersection;
                 if (bucket[i].Collider.Intersects(bucket[j].Collider, out intersection)) {
                     intersections.Add(intersection);
                 }

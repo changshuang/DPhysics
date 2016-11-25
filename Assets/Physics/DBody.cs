@@ -4,13 +4,12 @@ using UnityEngine;
 /// <summary>
 /// Class representing a rigid body inside the physics simulation
 /// </summary>
-public class PhysicsObject {
+public class DBody {
 
     private int identifier;
     private DCollider collider;
     private Vector2f position;
     private Vector2f prevPosition;
-    private Vector2f oldColliderPosition;
     private Vector2f velocity;
     private intf mass;
     private intf invMass;
@@ -19,7 +18,10 @@ public class PhysicsObject {
     private bool sleeping;
 
     //sleeping treshold to disable integration on low velocities
-    private static readonly intf treshold = intf.Create(0.001);
+    private static readonly intf treshold = intf.Create(0.01);
+
+    //TODO remove this shit
+    private static readonly Vector2f gravity = Vector2f.Down * 10;
 
     /// <summary>
     /// Creates a new rigid body with the given parameters.
@@ -29,10 +31,9 @@ public class PhysicsObject {
     /// <param name="mass">the object's mass</param>
     /// <param name="restitution">the "bounciness"</param>
     /// <param name="friction">amount of friction</param>
-    public PhysicsObject(DCollider collider, Vector2f position, intf mass, intf restitution, intf friction) {
+    public DBody(DCollider collider, Vector2f position, intf mass, intf restitution, intf friction) {
         this.collider = collider;
         this.position = position;
-        this.oldColliderPosition = position;
         this.prevPosition = position;
         this.mass = mass;
         this.invMass = (mass > 0) ? ((intf)1 / mass) : (intf)0;
@@ -117,7 +118,6 @@ public class PhysicsObject {
     /// <param name="v">the new velocity to add.</param>
     public void SetVelocity(Vector2f v) {
         this.velocity += v;
-        sleeping = (velocity.SqrtMagnitude < treshold) ? true : false;
     }
 
     /// <summary>
@@ -129,6 +129,8 @@ public class PhysicsObject {
         Vector2f translation = position - prevPosition;
         prevPosition = position;
         collider.Transform(translation);
+
+        velocity += (gravity * invMass) / frames;
         position += velocity / frames;
     }
 
@@ -152,7 +154,7 @@ public class PhysicsObject {
     /// </summary>
     /// <param name="other">generic object.</param>
     /// <returns> the result of the calculation this.ID - other.ID</returns>
-    public int CompareTo(PhysicsObject other) {
+    public int CompareTo(DBody other) {
         return identifier - other.identifier;
     }
 
@@ -171,8 +173,8 @@ public class PhysicsObject {
     /// <param name="obj">the generic object</param>
     /// <returns>true if the object is a rigid body and the identifiers match, false otherwise</returns>
     public override bool Equals(object obj) {
-        if (obj is PhysicsObject)
-            return ((PhysicsObject)obj).identifier == identifier;
+        if (obj is DBody)
+            return ((DBody)obj).identifier == identifier;
         return false;
     }
 

@@ -12,7 +12,7 @@ public class Spawner : MonoBehaviour {
         int size = PhysicsEngine.Instance.sceneWidth;
         int range = size - 50;
         for (int i = 0; i < instances; i++) {
-            Instantiate(square, new Vector3(Random.value * range+25, 0, Random.value * range+25), Quaternion.identity);
+            Instantiate(circle, new Vector3(Random.value * range+25, 0, Random.value * range+25), Quaternion.identity);
         }
 	}
 	

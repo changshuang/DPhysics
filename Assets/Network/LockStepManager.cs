@@ -7,7 +7,7 @@ public class LockStepManager : MonoBehaviour {
     private PhysicsEngine physics;
 
     //game update frequency in ms
-    private const int rate = 100;
+    private const int rate = 50;
 
     private int accumulator;
     private int gameFrameSec;

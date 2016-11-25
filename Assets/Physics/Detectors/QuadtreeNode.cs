@@ -5,8 +5,8 @@ using System.Collections.Generic;
 /// <summary>
 /// Generic class for quadtree nodes.
 /// </summary>
-/// <typeparam name="T">type inheriting from PhysicsObject</typeparam>
-public class QuadtreeNode<T> where T : PhysicsObject {
+/// <typeparam name="T">type inheriting from DBody</typeparam>
+public class QuadtreeNode<T> where T : DBody {
 
     private int size;
     private Vector2f position;
@@ -73,13 +73,13 @@ public class QuadtreeNode<T> where T : PhysicsObject {
         return objects.Remove(value);
     }
 
-    public void GetCollisions(HashSet<Intersection> collisionSet) {
+    public void GetCollisions(HashSet<Manifold> collisionSet) {
         if (IsEmpty() || objects.Count < 2)
             return;
 
         for (int i = 0; i < objects.Count; i++) {
             for (int j = i + 1; j < objects.Count; j++) {
-                Intersection intersection;
+                Manifold intersection;
                 if (objects[i].Collider.Intersects(objects[j].Collider, out intersection)) {
                     collisionSet.Add(intersection);
                 }

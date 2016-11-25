@@ -4,7 +4,7 @@ using FixedPointMath;
 /// <summary>
 /// Monobehaviour component used to define a new physics object.
 /// </summary>
-public class PhysicsComponent : MonoBehaviour {
+public class DBodyComponent : MonoBehaviour {
 
     public float speed;
 
@@ -13,12 +13,12 @@ public class PhysicsComponent : MonoBehaviour {
     public float friction;
 
     private ColliderComponent colliderComponent;
-    private PhysicsObject physicsObject;
+    private DBody physicsObject;
 
     //TODO: remove this temporary code
     void Start() {
         this.colliderComponent = GetComponent<ColliderComponent>();
-        physicsObject = new PhysicsObject(
+        physicsObject = new DBody(
             colliderComponent.RequireCollider(),
             new Vector2f(transform.position),
             intf.Create(mass),
@@ -37,6 +37,14 @@ public class PhysicsComponent : MonoBehaviour {
     /// Updates the position of the gameObject by using the physics object data.
     /// </summary>
 	void Update () {
-        this.transform.position = physicsObject.InterpolatedPosition();
+        if (!physicsObject.IsSleeping() && !physicsObject.IsFixed())
+            this.transform.position = physicsObject.InterpolatedPosition();
 	}
+
+    void OnDrawGizmos() {
+        /*if (physicsObject == null)
+            return;
+        Gizmos.color = (physicsObject.IsSleeping()) ? Color.green : Color.white;
+        Gizmos.DrawCube(transform.position, Vector3.one * 2);*/
+    }
 }

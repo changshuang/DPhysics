@@ -5,9 +5,9 @@ using FixedPointMath;
 /// <summary>
 /// Collision detector using a quadtree for spatial subdivision.
 /// </summary>
-public class QuadTreeDetector : CollisionDetector{
+public class QuadTreeDetector : ICollisionDetector{
 
-    private QuadTree<PhysicsObject> tree;
+    private QuadTree<DBody> tree;
     private int extension;
 
     /// <summary>
@@ -17,14 +17,14 @@ public class QuadTreeDetector : CollisionDetector{
     /// <param name="minSize">minimum node size</param>
     public QuadTreeDetector(int maxSize, int minSize) {
         Debug.Log("size:" + maxSize + " leaf size: " + minSize);
-        tree = new QuadTree<PhysicsObject>(minSize, maxSize, Vector2f.Zero);
+        tree = new QuadTree<DBody>(minSize, maxSize, Vector2f.Zero);
     }
 
     /// <summary>
     /// Inserts the given object inside the tree.
     /// </summary>
     /// <param name="obj">the object</param>
-    public void Insert(PhysicsObject obj) {
+    public void Insert(DBody obj) {
         tree.Insert(obj);
     }
 
@@ -32,7 +32,7 @@ public class QuadTreeDetector : CollisionDetector{
     /// Removes the given object from the tree.
     /// </summary>
     /// <param name="obj">the object</param>
-    public void Remove(PhysicsObject obj) {
+    public void Remove(DBody obj) {
         tree.Remove(obj);
     }
 
@@ -40,8 +40,8 @@ public class QuadTreeDetector : CollisionDetector{
     /// Gets a set of all the collisions in the structure.
     /// </summary>
     /// <returns>hash set of intersections</returns>
-    public HashSet<Intersection> FindPotentialCollisions() {
-        HashSet<Intersection> collisionSet = new HashSet<Intersection>();
+    public HashSet<Manifold> FindPotentialCollisions() {
+        HashSet<Manifold> collisionSet = new HashSet<Manifold>();
         tree.FindCollisions(collisionSet);
         return collisionSet;
     }

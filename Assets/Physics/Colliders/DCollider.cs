@@ -6,7 +6,7 @@
 public abstract class DCollider {
 
     private readonly ColliderType type;
-    private PhysicsObject body;
+    private DBody body;
     private bool isTrigger;
 
     /// <summary>
@@ -25,7 +25,7 @@ public abstract class DCollider {
     /// <param name="type">type of the collider</param>
     /// <param name="body">rigid body</param>
     /// <param name="isTrigger">true if this is a trigger, false otherwise</param>
-    public DCollider(ColliderType type, PhysicsObject body, bool isTrigger) {
+    public DCollider(ColliderType type, DBody body, bool isTrigger) {
         this.type = type;
         this.body = body;
         this.isTrigger = isTrigger;
@@ -41,7 +41,7 @@ public abstract class DCollider {
     /// <summary>
     /// Returns the body of this collider.
     /// </summary>
-    public PhysicsObject Body {
+    public DBody Body {
         get { return body; }
         set { this.body = value; }
     }
@@ -61,7 +61,7 @@ public abstract class DCollider {
     /// <param name="other">other collider.</param>
     /// <param name="intersection">result of the collision, if any.</param>
     /// <returns></returns>
-    public bool Intersects(DCollider other, out Intersection intersection) {
+    public bool Intersects(DCollider other, out Manifold intersection) {
         switch (other.Type) {
             case ColliderType.Box:
                 return Intersects((DBoxCollider)other, out intersection);
@@ -96,7 +96,7 @@ public abstract class DCollider {
     /// <param name="other">circle collider</param>
     /// <param name="intersection">collision data</param>
     /// <returns></returns>
-    public abstract bool Intersects(DCircleCollider other, out Intersection intersection);
+    public abstract bool Intersects(DCircleCollider other, out Manifold intersection);
 
     /// <summary>
     /// Abstract function for intersections with boxes.
@@ -104,5 +104,5 @@ public abstract class DCollider {
     /// <param name="other">box collider.</param>
     /// <param name="intersection">collision data.</param>
     /// <returns></returns>
-    public abstract bool Intersects(DBoxCollider other, out Intersection intersection);
+    public abstract bool Intersects(DBoxCollider other, out Manifold intersection);
 }
