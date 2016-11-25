@@ -1,6 +1,5 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using FixedPointMath;
 
 public interface IIntegrator {
-    void Integrate(DBody body, int frames);
+    void Integrate(DBody body, intf delta);
 }

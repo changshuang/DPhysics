@@ -67,14 +67,26 @@ public class HashGridDetector : ICollisionDetector {
     /// Returns a set of collisions, iterating through each active cell.
     /// </summary>
     /// <returns>set of collisions</returns>
-    public HashSet<Manifold> FindPotentialCollisions() {
-        HashSet<Manifold> collisionSet = new HashSet<Manifold>();
+    public void FindPotentialCollisions(HashSet<Manifold> contacts) {
         foreach (Cell c in cells) {
             if (c != null && c.Active) {
-                c.FindCollisions(collisionSet);
+                c.FindCollisions(contacts);
             }
         }
-        return collisionSet;
+    }
+
+    public void Build(List<DBody> bodies) {
+        Clear();
+        foreach (DBody body in bodies) {
+            Insert(body);
+        }
+    }
+
+    /// <summary>
+    /// Generates a new grid, deleting everything stored until now.
+    /// </summary>
+    public void Clear() {
+        cells = new Cell[rows, cols];
     }
 
     /// <summary>

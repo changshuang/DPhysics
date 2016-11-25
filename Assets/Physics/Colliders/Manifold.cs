@@ -80,6 +80,46 @@ public class Manifold {
     }
 
     /// <summary>
+    /// Resolve the collision by calculating the resulting velocity, using the
+    /// given normal and penetration, stored in the intersection.
+    /// </summary>
+    /// <param name="collision">Intersection instance containing all the collision data.</param>
+    public void ApplyImpulse() {
+
+        //both objects have infinite mass, return
+        if (objA.Mass + objB.Mass == 0) {
+            objA.Velocity = Vector2f.Zero;
+            objB.Velocity = Vector2f.Zero;
+            return;
+        }
+
+        Vector2f rv = objB.Velocity - objA.Velocity;
+        intf normalVel = Vector2f.Dot(rv, normal);
+
+        if (normalVel > 0)
+            return;
+
+        intf e = FixedMath.Min(objA.Restitution, objB.Restitution);
+        intf j = (-(1 + e) * normalVel) / (objA.InvMass + objB.InvMass);
+
+        Vector2f impulse = normal * j;
+        objA.Velocity -= impulse * objA.InvMass;
+        objB.Velocity += impulse * objB.InvMass;
+    }
+
+    /// <summary>
+    /// Corrects the position by a small percentage, with a small amount of tolerance.
+    /// </summary>
+    public void CorrectPosition() {
+        intf totInvMass = objA.InvMass + objB.InvMass;
+        intf penetration = FixedMath.Max(distance - PhysicsEngine.PENETRATION_SLOP, (intf)0);
+        Vector2f corr = normal * (penetration / totInvMass) * PhysicsEngine.PENETRATION_CORRECTION;
+
+        objA.Transform(-corr * objA.InvMass);
+        objB.Transform(corr * objB.InvMass);
+    }
+
+    /// <summary>
     /// Returns the intersection hash code.
     /// </summary>
     /// <returns>integer representing a unique pair (excluding symmetrical couples)</returns>

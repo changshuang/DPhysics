@@ -5,6 +5,7 @@ public class Spawner : MonoBehaviour {
 
     public GameObject circle;
     public GameObject square;
+    public Camera camera;
     public int instances;
 
 	// Use this for initialization
@@ -19,13 +20,13 @@ public class Spawner : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         if (Input.GetMouseButton(0)) {
-            Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 pos = camera.ScreenToWorldPoint(Input.mousePosition);
             pos.y = 0;
             Instantiate(circle, pos, Quaternion.identity);
         }
 
         if (Input.GetMouseButton(1)) {
-            Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 pos = camera.ScreenToWorldPoint(Input.mousePosition);
             pos.y = 0;
             Instantiate(square, pos, Quaternion.identity);
         }

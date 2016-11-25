@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using FixedPointMath;
+using System;
 
 /// <summary>
 /// Collision detector using a quadtree for spatial subdivision.
@@ -40,10 +41,8 @@ public class QuadTreeDetector : ICollisionDetector{
     /// Gets a set of all the collisions in the structure.
     /// </summary>
     /// <returns>hash set of intersections</returns>
-    public HashSet<Manifold> FindPotentialCollisions() {
-        HashSet<Manifold> collisionSet = new HashSet<Manifold>();
-        tree.FindCollisions(collisionSet);
-        return collisionSet;
+    public void FindPotentialCollisions(HashSet<Manifold> contacts) {
+        tree.FindCollisions(contacts);
     }
 
     /// <summary>
@@ -51,5 +50,13 @@ public class QuadTreeDetector : ICollisionDetector{
     /// </summary>
     public void Draw() {
         tree.Draw();
+    }
+
+    public void Build(List<DBody> bodies) {
+        throw new NotImplementedException();
+    }
+
+    public void Clear() {
+        throw new NotImplementedException();
     }
 }

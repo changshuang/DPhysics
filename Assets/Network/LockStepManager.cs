@@ -9,13 +9,15 @@ public class LockStepManager : MonoBehaviour {
     //game update frequency in ms
     private const int rate = 50;
 
-    private int accumulator;
-    private int gameFrameSec;
+    private float accumulator;
+    private float fixedDelta;
+    private intf fixedDeltaF;
 
     void Awake() {
         this.accumulator = 0;
-        this.gameFrameSec = 1000/rate;
-        print(gameFrameSec);
+        this.fixedDelta = rate / (float)1000; 
+        this.fixedDeltaF = intf.Create(fixedDelta);
+        print(fixedDelta);
     }
 
 	void Start () {
@@ -24,15 +26,15 @@ public class LockStepManager : MonoBehaviour {
 	
 	// Updates the physics
 	void Update () {
-        int delta = (int)(Time.deltaTime * 1000);
-        if (delta > 250)
-            delta = 250;
+        float delta = Time.deltaTime;
+        if (delta > 0.25f)
+            delta = 0.25f;
         this.accumulator += delta;
 
-        while (accumulator >= rate) {
-            physics.UpdatePhysics(gameFrameSec);
-            accumulator -= rate;
+        while (accumulator >= fixedDelta) {
+            physics.Step(fixedDeltaF);
+            accumulator -= fixedDelta;
         }
-       PhysicsEngine.alpha = accumulator / (float)rate;
+        PhysicsEngine.alpha = accumulator / fixedDelta;
 	}
 }

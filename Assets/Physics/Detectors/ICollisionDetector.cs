@@ -20,6 +20,17 @@ public interface ICollisionDetector {
     void Remove(DBody obj);
 
     /// <summary>
+    /// Inserts every item sotred inside the given list of bodies inside the grid.
+    /// </summary>
+    /// <param name="bodies">list of physics bodies</param>
+    void Build(List<DBody> bodies);
+
+    /// <summary>
+    /// Completely resets the current detector.
+    /// </summary>
+    void Clear();
+
+    /// <summary>
     /// Draws the current structure using gizmos.
     /// </summary>
     void Draw();
@@ -28,5 +39,5 @@ public interface ICollisionDetector {
     /// Gets all the collisions inside the structure.
     /// </summary>
     /// <returns>hash set containing the collision data</returns>
-    HashSet<Manifold> FindPotentialCollisions();
+    void FindPotentialCollisions(HashSet<Manifold> contacts);
 }

@@ -7,9 +7,15 @@ using FixedPointMath;
 /// </summary>
 public class PhysicsEngine : MonoBehaviour{
 
-    public const int maxObjectCount = 4096;
-    public const float correctionf = 0.4f;
-    public const float slopf = 0.01f;
+    //physics constants
+    public const int MAX_BODIES = 4096;
+    public const int ITERATIONS = 1;
+    public static readonly intf EPSILON = intf.Create(0.0001);
+    public static readonly intf SQR_EPSILON = EPSILON * EPSILON;
+    public static readonly intf PENETRATION_CORRECTION = intf.Create(0.4);
+    public static readonly intf PENETRATION_SLOP = intf.Create(0.04);
+    public static readonly Vector2f GRAVITY = new Vector2f(0, 0);
+    
     public int sceneWidth;
     public int sceneHeight;
     public int cellSize;
@@ -19,11 +25,11 @@ public class PhysicsEngine : MonoBehaviour{
     private static PhysicsEngine instance;
     private static int bodyCount;
 
-    private List<DBody> objects;
+    private List<DBody> bodies;
+    private HashSet<Manifold> contacts;
     private ICollisionDetector detector;
+    private IIntegrator integrator;
     private bool simulate;
-    private intf correction;
-    private intf slop;
 
     //TODO: remove this
     private GUIStyle style;
@@ -34,11 +40,11 @@ public class PhysicsEngine : MonoBehaviour{
     void Awake() {
         instance = this;
         bodyCount = 0;
-        objects = new List<DBody>();
+        bodies = new List<DBody>();
         detector = new HashGridDetector(cellSize, sceneWidth, sceneHeight);
+        integrator = new EulerImplicit();
+        contacts = new HashSet<Manifold>();
         simulate = false;
-        correction = intf.Create(correctionf);
-        slop = intf.Create(slopf);
     }
 
     /// <summary>
@@ -83,80 +89,45 @@ public class PhysicsEngine : MonoBehaviour{
     /// </summary>
     /// <param name="obj">the new object.</param>
     public void AddObject(DBody obj) {
-        if (bodyCount > maxObjectCount)
+        if (bodyCount > MAX_BODIES)
             return;
 
         obj.SetID(bodyCount);
         bodyCount++;
-        this.objects.Add(obj);
-        this.detector.Insert(obj);
+        this.bodies.Add(obj);
     }
 
     /// <summary>
     /// Main physics loop, find collisions, resolve them and move the bodies.
     /// </summary>
     /// <param name="delta"> amount of time for this simulation step</param>
-    public void UpdatePhysics(int frames) {
+    public void Step(intf delta) {
         if (!simulate)
             return;
+        contacts.Clear();
 
-        Profiler.BeginSample("Collision detection");
-        HashSet<Manifold> broadPhaseCollisions = detector.FindPotentialCollisions();
-        Profiler.EndSample();
-        foreach (Manifold collision in broadPhaseCollisions) {
-            if (!collision.IsTrigger()) {
-                ResolveCollision(collision, frames);
+        //apply forces and integrate
+        foreach (DBody body in bodies) {
+            if (!body.IsFixed() && !body.IsSleeping()) {
+                integrator.Integrate(body, delta);
             }
         }
-    
-        //for each physics object, apply forces
-        foreach(DBody obj in objects) {
-            if (!obj.IsFixed() && !obj.IsSleeping()) {
 
-                Profiler.BeginSample("Remove");
-                detector.Remove(obj);
-                Profiler.EndSample();
+        //find collisions
+        detector.Build(bodies);
+        detector.FindPotentialCollisions(contacts);
 
-                obj.Integrate(frames);
-
-                Profiler.BeginSample("Insert");
-                detector.Insert(obj);
-                Profiler.EndSample();
+        //resolve collisions
+        for (uint i = 0; i < ITERATIONS; i++) {
+            foreach (Manifold contact in contacts) {
+                contact.ApplyImpulse();
             }
         }
-    }
 
-    /// <summary>
-    /// Resolve the collision by calculating the resulting velocity, using the
-    /// given normal and penetration, stored in the intersection.
-    /// </summary>
-    /// <param name="collision">Intersection instance containing all the collision data.</param>
-    private void ResolveCollision(Manifold collision, int frames) {
-        DBody a = collision.GetA();
-        DBody b = collision.GetB();
-        Vector2f rv = b.Velocity - a.Velocity;
-        intf normalVel = Vector2f.Dot(rv, collision.Normal);
-
-        if (normalVel > 0)
-            return;
-
-        intf e = FixedMath.Min(a.Restitution, b.Restitution);
-        intf j = (-(1 + e) * normalVel) / (a.InvMass + b.InvMass);
-
-        Vector2f impulse = collision.Normal * j;
-        a.SetVelocity(-impulse * a.InvMass);
-        b.SetVelocity(impulse * b.InvMass);
-        CorrectPosition(collision);
-    }
-
-    private void CorrectPosition(Manifold collision) {
-        DBody a = collision.GetA();
-        DBody b = collision.GetB();
-        intf totInvMass = a.InvMass + b.InvMass;
-        intf penetration = FixedMath.Max(collision.Distance - slop, (intf)0);
-        Vector2f corr = collision.Normal * (penetration / totInvMass) * correction;
-
-        a.CorrectPosition(-corr);
-        b.CorrectPosition(corr);
+        //TODO fix positional correction (jittering and not properly working)
+        /*correct positions
+        foreach (Manifold contact in contacts) {
+            contact.CorrectPosition();
+        }*/
     }
 }

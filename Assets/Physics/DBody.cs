@@ -7,21 +7,19 @@ using UnityEngine;
 public class DBody {
 
     private int identifier;
+
     private DCollider collider;
+
     private Vector2f position;
     private Vector2f prevPosition;
     private Vector2f velocity;
+    private Vector2f force;
+
     private intf mass;
     private intf invMass;
     private intf restitution;
     private intf friction;
     private bool sleeping;
-
-    //sleeping treshold to disable integration on low velocities
-    private static readonly intf treshold = intf.Create(0.01);
-
-    //TODO remove this shit
-    private static readonly Vector2f gravity = Vector2f.Down * 10;
 
     /// <summary>
     /// Creates a new rigid body with the given parameters.
@@ -68,6 +66,29 @@ public class DBody {
     }
 
     /// <summary>
+    /// Generates a Vector3 using linear interpolation from the previous position to the current one, 
+    /// in order to generate a smooth transition in the rendering of the physics steps.
+    /// </summary>
+    /// <returns>Vector3 interpolated</returns>
+    public Vector3 InterpolatedPosition() {
+        Vector3 previous = prevPosition.ToVector3();
+        Vector3 current = position.ToVector3();
+        float a = PhysicsEngine.alpha;
+        return (current * a + previous * (1f - a));
+    }
+
+    /// <summary>
+    /// Moves the body and updates the position of the collider.
+    /// </summary>
+    /// <param name="translation">amount of movement to apply</param>
+    public void Transform(Vector2f translation) {
+        Vector2f difference = position - prevPosition;
+        prevPosition = position;
+        collider.Transform(difference);
+        position += translation;
+    }
+
+    /// <summary>
     /// Returns the mass.
     /// </summary>
     public intf Mass {
@@ -86,6 +107,28 @@ public class DBody {
     /// </summary>
     public intf Restitution {
         get { return this.restitution; }
+    }
+
+    /// <summary>
+    /// Returns the current applied force on this body.
+    /// </summary>
+    public Vector2f Force {
+        get { return this.force; }
+    }
+
+    /// <summary>
+    /// Applies a force to the object. The given amount is added to the total amount.
+    /// </summary>
+    /// <param name="force">vector representing a force</param>
+    public void AddForce(Vector2f force) {
+        this.force += force;
+    }
+
+    /// <summary>
+    /// Resets the forces applied to this body.
+    /// </summary>
+    public void ClearForces() {
+        this.force = Vector2f.Zero;
     }
 
     /// <summary>
@@ -110,43 +153,6 @@ public class DBody {
     /// <returns>the value of sleeping</returns>
     public bool IsSleeping() {
         return this.sleeping;
-    }
-
-    /// <summary>
-    /// Sets the current velocity and updates the sleeping value.
-    /// </summary>
-    /// <param name="v">the new velocity to add.</param>
-    public void SetVelocity(Vector2f v) {
-        this.velocity += v;
-    }
-
-    /// <summary>
-    /// Calculates the new position, using the current velocity.
-    /// The function also adjusts the collider's position.
-    /// </summary>
-    /// <param name="frames">number of frames for the current timestep</param>
-    public void Integrate(int frames) {
-        Vector2f translation = position - prevPosition;
-        prevPosition = position;
-        collider.Transform(translation);
-
-        velocity += (gravity * invMass) / frames;
-        position += velocity / frames;
-    }
-
-    /// <summary>
-    /// Adjusts the position of the object to avoid sinking into each other.
-    /// </summary>
-    /// <param name="correction">vector representing the translation</param>
-    public void CorrectPosition(Vector2f correction) {
-        position += correction * invMass;
-    }
-
-    public Vector3 InterpolatedPosition() {
-        Vector3 previous = prevPosition.ToVector3();
-        Vector3 current = position.ToVector3();
-        float a = PhysicsEngine.alpha;
-        return (current * a + previous * (1 - a));
     }
 
     /// <summary>
