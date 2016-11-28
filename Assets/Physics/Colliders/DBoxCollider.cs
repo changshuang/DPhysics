@@ -1,4 +1,4 @@
-﻿using FixedPointMath;
+﻿using FixedMath;
 
 /// <summary>
 /// 2D collider representing a rectangle, using fixed point math. It is defined by the minimum and
@@ -6,15 +6,15 @@
 /// </summary>
 public class DBoxCollider : DCollider {
 
-    private Vector2f min;
-    private Vector2f max;
+    private Vector2F min;
+    private Vector2F max;
 
     /// <summary>
     /// Creates a new box collider with the given dimensions.
     /// </summary>
     /// <param name="min">te minimum edge</param>
     /// <param name="max">the maximum edge</param>
-    public DBoxCollider(Vector2f min, Vector2f max, bool isTrigger) : base(ColliderType.Box, isTrigger) {
+    public DBoxCollider(Vector2F min, Vector2F max, bool isTrigger) : base(ColliderType.Box, isTrigger) {
         this.min = min;
         this.max = max;
     }
@@ -22,14 +22,14 @@ public class DBoxCollider : DCollider {
     /// <summary>
     /// Returns the minimum edge.
     /// </summary>
-    public Vector2f Min {
+    public Vector2F Min {
         get { return this.min; }
     }
 
     /// <summary>
     /// Returns the maximum edge.
     /// </summary>
-    public Vector2f Max {
+    public Vector2F Max {
         get { return this.max; }
     }
 
@@ -37,7 +37,7 @@ public class DBoxCollider : DCollider {
     /// Gets the collider's position, intended as the bottom left edge.
     /// </summary>
     /// <returns>The minimum edge</returns>
-    public override Vector2f GetPosition() {
+    public override Vector2F GetPosition() {
         return this.min;
     }
 
@@ -53,15 +53,15 @@ public class DBoxCollider : DCollider {
     /// Gets a vector representing the extension of this collider on the x and y axis.
     /// </summary>
     /// <returns>The extents of the collider</returns>
-    public Vector2f GetExtents() {
-        return new Vector2f(max.x - min.x, max.y - min.y);
+    public Vector2F GetExtents() {
+        return new Vector2F(max.x - min.x, max.y - min.y);
     }
 
     /// <summary>
     /// Transforms the collider's position by the given amount.
     /// </summary>
     /// <param name="translation">Vector indicating the translation</param>
-    public override void Transform(Vector2f translation) {
+    public override void Transform(Vector2F translation) {
         this.min += translation;
         this.max += translation;
     }
@@ -96,43 +96,43 @@ public class DBoxCollider : DCollider {
         }
 
         // Vector from A to B
-        Vector2f distance = other.Body.Position - Body.Position;
+        Vector2F distance = other.Body.Position - Body.Position;
 
         // Calculate half extents along x axis for each object
-        intf xEntentA = (max.x - min.x) / 2;
-        intf xExtentB = (other.max.x - other.min.x) / 2;
+        Fix32 xEntentA = (max.x - min.x) / (Fix32)2;
+        Fix32 xExtentB = (other.max.x - other.min.x) / (Fix32)2;
 
         // Calculate overlap on x axis
-        intf offsetX = xEntentA + xExtentB - FixedMath.Abs(distance.x);
+        Fix32 offsetX = xEntentA + xExtentB - Fix32.Abs(distance.x);
 
         // SAT test on x axis
-        if (offsetX > 0) {
+        if (offsetX > Fix32.Zero) {
             // Calculate half extents along x axis for each object
-            intf yExtentA = (max.y - min.y) / 2;
-            intf yExtentB = (other.max.y - other.min.y) / 2;
+            Fix32 yExtentA = (max.y - min.y) / (Fix32)2;
+            Fix32 yExtentB = (other.max.y - other.min.y) / (Fix32)2;
 
             // Calculate overlap on y axis
-            intf offsetY = yExtentA + yExtentB - FixedMath.Abs(distance.y);
+            Fix32 offsetY = yExtentA + yExtentB - Fix32.Abs(distance.y);
 
             // SAT test on y axis
-            if (offsetY > 0) {
-                Vector2f n;
+            if (offsetY > Fix32.Zero) {
+                Vector2F n;
                 // Find out which axis is axis of least penetration
                 if (offsetX < offsetY) {
                     // Point towards B knowing that n points from A to B
-                    if (distance.x < 0)
-                        n = new Vector2f(-1, 0);
+                    if (distance.x < Fix32.Zero)
+                        n = new Vector2F(-1, 0);
                     else
-                        n = new Vector2f(1, 0);
+                        n = new Vector2F(1, 0);
                     intersection = new Manifold(Body, other.Body, n, offsetX);
                     return true;
                 }
                 else {
                     // Point toward B knowing that n points from A to B
-                    if (distance.y < 0)
-                        n = new Vector2f(0, -1);
+                    if (distance.y < Fix32.Zero)
+                        n = new Vector2F(0, -1);
                     else
-                        n = new Vector2f(0, 1);
+                        n = new Vector2F(0, 1);
                     intersection = new Manifold(Body, other.Body, n, offsetY);
                     return true;
                 }
@@ -147,7 +147,7 @@ public class DBoxCollider : DCollider {
     /// </summary>
     /// <param name="point">Vector representing a point</param>
     /// <returns>true if the point is inside the collider, false otherwise.</returns>
-    public bool Contains(Vector2f point) {
+    public bool Contains(Vector2F point) {
         return (min.x <= point.x && point.x <= max.x &&
                 min.y <= point.y && point.x <= max.y);
     }

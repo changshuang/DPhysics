@@ -1,4 +1,4 @@
-﻿using FixedPointMath;
+﻿using FixedMath;
 using UnityEngine;
 
 /// <summary>
@@ -10,16 +10,15 @@ public class DBody {
 
     private DCollider collider;
 
-    private Vector2f position;
-    private Vector2f prevPosition;
-    private Vector2f velocity;
-    private Vector2f force;
+    private Vector2F position;
+    private Vector2F prevPosition;
+    private Vector2F velocity;
+    private Vector2F force;
 
-    private intf mass;
-    private intf invMass;
-    private intf restitution;
-    private intf friction;
-    private bool sleeping;
+    private Fix32 mass;
+    private Fix32 invMass;
+    private Fix32 restitution;
+    private Fix32 friction;
 
     /// <summary>
     /// Creates a new rigid body with the given parameters.
@@ -29,16 +28,15 @@ public class DBody {
     /// <param name="mass">the object's mass</param>
     /// <param name="restitution">the "bounciness"</param>
     /// <param name="friction">amount of friction</param>
-    public DBody(DCollider collider, Vector2f position, intf mass, intf restitution, intf friction) {
+    public DBody(DCollider collider, Vector2F position, Fix32 mass, Fix32 restitution, Fix32 friction) {
         this.collider = collider;
         this.position = position;
         this.prevPosition = position;
         this.mass = mass;
-        this.invMass = (mass > 0) ? ((intf)1 / mass) : (intf)0;
+        this.invMass = (mass > Fix32.Zero) ? ((Fix32)1 / mass) : (Fix32)0;
         this.restitution = restitution;
-        this.friction = friction;
+        this.friction = friction / (Fix32)10;
         this.collider.Body = this;
-        this.sleeping = false;
     }
 
     /// <summary>
@@ -53,7 +51,7 @@ public class DBody {
     /// <summary>
     /// Returns or sets the current velocity.
     /// </summary>
-    public Vector2f Velocity {
+    public Vector2F Velocity {
         get { return velocity; }
         set { velocity = value; }
     }
@@ -61,7 +59,7 @@ public class DBody {
     /// <summary>
     /// Returns the current position.
     /// </summary>
-    public Vector2f Position {
+    public Vector2F Position {
         get { return position; }
     }
 
@@ -73,7 +71,7 @@ public class DBody {
     public Vector3 InterpolatedPosition() {
         Vector3 previous = prevPosition.ToVector3();
         Vector3 current = position.ToVector3();
-        float a = PhysicsEngine.alpha;
+        float a = DWorld.alpha;
         return (current * a + previous * (1f - a));
     }
 
@@ -81,8 +79,8 @@ public class DBody {
     /// Moves the body and updates the position of the collider.
     /// </summary>
     /// <param name="translation">amount of movement to apply</param>
-    public void Transform(Vector2f translation) {
-        Vector2f difference = position - prevPosition;
+    public void Transform(Vector2F translation) {
+        Vector2F difference = position - prevPosition;
         prevPosition = position;
         collider.Transform(difference);
         position += translation;
@@ -91,36 +89,40 @@ public class DBody {
     /// <summary>
     /// Returns the mass.
     /// </summary>
-    public intf Mass {
+    public Fix32 Mass {
         get { return this.mass; }
     }
 
     /// <summary>
     /// Returns the inverse mass, calculated as 1/mass.
     /// </summary>
-    public intf InvMass {
+    public Fix32 InvMass {
         get { return this.invMass; }
     }
 
     /// <summary>
     /// Returns the current restitution.
     /// </summary>
-    public intf Restitution {
+    public Fix32 Restitution {
         get { return this.restitution; }
     }
 
     /// <summary>
     /// Returns the current applied force on this body.
     /// </summary>
-    public Vector2f Force {
+    public Vector2F Force {
         get { return this.force; }
+    }
+
+    public Fix32 Friction {
+        get { return this.friction; }
     }
 
     /// <summary>
     /// Applies a force to the object. The given amount is added to the total amount.
     /// </summary>
     /// <param name="force">vector representing a force</param>
-    public void AddForce(Vector2f force) {
+    public void AddForce(Vector2F force) {
         this.force += force;
     }
 
@@ -128,7 +130,7 @@ public class DBody {
     /// Resets the forces applied to this body.
     /// </summary>
     public void ClearForces() {
-        this.force = Vector2f.Zero;
+        this.force = Vector2F.Zero;
     }
 
     /// <summary>
@@ -144,15 +146,7 @@ public class DBody {
     /// </summary>
     /// <returns>true if the mass is i0, false otherwise.</returns>
     public bool IsFixed() {
-        return mass == 0;
-    }
-
-    /// <summary>
-    /// Checks whether this object is active or not.
-    /// </summary>
-    /// <returns>the value of sleeping</returns>
-    public bool IsSleeping() {
-        return this.sleeping;
+        return mass == Fix32.Zero;
     }
 
     /// <summary>

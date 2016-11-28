@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System;
 using System.Collections.Generic;
-using FixedPointMath;
+using FixedMath;
 
 /// <summary>
 /// Collision detector using spatial hash grids.
@@ -67,7 +65,7 @@ public class HashGridDetector : ICollisionDetector {
     /// Returns a set of collisions, iterating through each active cell.
     /// </summary>
     /// <returns>set of collisions</returns>
-    public void FindPotentialCollisions(HashSet<Manifold> contacts) {
+    public void FindCollisions(HashSet<Manifold> contacts) {
         foreach (Cell c in cells) {
             if (c != null && c.Active) {
                 c.FindCollisions(contacts);
@@ -110,9 +108,9 @@ public class HashGridDetector : ICollisionDetector {
     /// </summary>
     /// <param name="point"></param>
     /// <returns></returns>
-    private Coord Hash(Vector2f point) {
-        int x = (int)(point.x / cellSize);
-        int y = (int)(point.y / cellSize);
+    private Coord Hash(Vector2F point) {
+        int x = (int)(point.x / (Fix32)cellSize);
+        int y = (int)(point.y / (Fix32)cellSize);
         return new Coord(x, y);
     }
 
@@ -209,13 +207,19 @@ public class Cell {
         if (!Active || bucket.Count < 2)
             return;
 
+        Profiler.BeginSample("Collision detection");
         for (int i = 0; i < bucket.Count; i++) {
             for (int j = i+1; j < bucket.Count; j++) {
+
+                if (bucket[i].InvMass == Fix32.Zero && bucket[j].InvMass == Fix32.Zero)
+                    continue;
+
                 Manifold intersection;
                 if (bucket[i].Collider.Intersects(bucket[j].Collider, out intersection)) {
                     intersections.Add(intersection);
                 }
             }
         }
+        Profiler.EndSample();
     }
 }

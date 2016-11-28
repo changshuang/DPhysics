@@ -1,11 +1,11 @@
-﻿using FixedPointMath;
+﻿using FixedMath;
 
 /// <summary>
 /// Class representing a 2D circular collider, using fixed point math.
 /// </summary>
 public class DCircleCollider : DCollider {
-    private Vector2f center;
-    private intf radius;
+    private Vector2F center;
+    private Fix32 radius;
     private DBoxCollider boundingBox;
 
     /// <summary>
@@ -13,18 +13,18 @@ public class DCircleCollider : DCollider {
     /// </summary>
     /// <param name="position">the center of the circle</param>
     /// <param name="radius">the radius of the circle</param>
-    public DCircleCollider(Vector2f position, intf radius, bool isTrigger) : base(ColliderType.Circle, isTrigger){
+    public DCircleCollider(Vector2F position, Fix32 radius, bool isTrigger) : base(ColliderType.Circle, isTrigger){
         this.center = position;
         this.radius = radius;
-        Vector2f min = center - Vector2f.One * radius;
-        Vector2f max = center + Vector2f.One * radius;
+        Vector2F min = center - Vector2F.One * radius;
+        Vector2F max = center + Vector2F.One * radius;
         boundingBox = new DBoxCollider(min, max, isTrigger);
     }
 
     /// <summary>
     /// Returns this radius.
     /// </summary>
-    public intf Radius {
+    public Fix32 Radius {
         get { return this.radius; }
     }
 
@@ -39,7 +39,7 @@ public class DCircleCollider : DCollider {
     /// Gets the current center position.
     /// </summary>
     /// <returns>The center of the circle</returns>
-    public override Vector2f GetPosition() {
+    public override Vector2F GetPosition() {
         return this.center;
     }
 
@@ -56,7 +56,7 @@ public class DCircleCollider : DCollider {
     /// together wuth the corresponding bounding box.
     /// </summary>
     /// <param name="translation">vector representing the translation.</param>
-    public override void Transform(Vector2f translation) {
+    public override void Transform(Vector2F translation) {
         this.center += translation;
         this.boundingBox.Transform(translation);
     }
@@ -71,12 +71,12 @@ public class DCircleCollider : DCollider {
     public override bool Intersects(DBoxCollider other, out Manifold intersection) {
         intersection = null;
 
-        Vector2f halfExtents = other.GetExtents() / 2;
-        Vector2f boxCenter = other.Min + halfExtents;
+        Vector2F halfExtents = other.GetExtents() / 2;
+        Vector2F boxCenter = other.Min + halfExtents;
 
-        Vector2f difference = center - boxCenter;
-        Vector2f clamped = Vector2f.Clamp(difference, -halfExtents, halfExtents);
-        Vector2f closest = boxCenter + clamped;
+        Vector2F difference = center - boxCenter;
+        Vector2F clamped = Vector2F.Clamp(difference, -halfExtents, halfExtents);
+        Vector2F closest = boxCenter + clamped;
         difference = closest - center;
 
         if (difference.SqrtMagnitude > radius*radius)
@@ -88,16 +88,16 @@ public class DCircleCollider : DCollider {
             return true;
         }
 
-        intf dist = difference.Magnitude;
-        intf penetration;
-        Vector2f normal;
-        if (dist > 0) {
+        Fix32 dist = difference.Magnitude;
+        Fix32 penetration;
+        Vector2F normal;
+        if (dist > Fix32.Zero) {
             penetration = radius - dist;
             normal = difference / dist;
         }
         else {
             penetration = radius;
-            normal = new Vector2f(1, 0);
+            normal = new Vector2F(1, 0);
         }
         intersection = new Manifold(this.Body, other.Body, normal, penetration);
         return true;
@@ -112,9 +112,9 @@ public class DCircleCollider : DCollider {
     /// <returns>true if the colliders intersect, false otherwise.</returns>
     public override bool Intersects(DCircleCollider other, out Manifold intersection) {
         intersection = null;
-        intf rDistance = this.radius + other.radius;
-        intf sqrRadiusDistance = rDistance * rDistance;
-        Vector2f centerDistance = other.center - this.center;
+        Fix32 rDistance = this.radius + other.radius;
+        Fix32 sqrRadiusDistance = rDistance * rDistance;
+        Vector2F centerDistance = other.center - this.center;
         if (centerDistance.SqrtMagnitude > sqrRadiusDistance)
             return false;
 
@@ -124,16 +124,16 @@ public class DCircleCollider : DCollider {
             return true;
         }
 
-        intf distance = centerDistance.Magnitude;
-        Vector2f normal;
-        intf penetration;
-        if (distance != 0) {
+        Fix32 distance = centerDistance.Magnitude;
+        Vector2F normal;
+        Fix32 penetration;
+        if (distance > Fix32.Zero) {
             penetration = rDistance - distance;
             normal = centerDistance / distance;
         }
         else {
             penetration = this.radius;
-            normal = new Vector2f((intf)1, (intf)0);
+            normal = new Vector2F((Fix32)1, (Fix32)0);
         }
         intersection = new Manifold(this.Body, other.Body, normal, penetration);
         return true;

@@ -1,5 +1,6 @@
-﻿using FixedPointMath;
+﻿using FixedMath;
 
 public interface IIntegrator {
-    void Integrate(DBody body, intf delta);
+    void IntegrateForces(DBody body, Fix32 delta);
+    void IntegrateVelocities(DBody body, Fix32 delta);
 }

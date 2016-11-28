@@ -1,4 +1,4 @@
-﻿using FixedPointMath;
+﻿using FixedMath;
 using System;
 using System.Collections.Generic;
 
@@ -9,13 +9,13 @@ using System.Collections.Generic;
 public class QuadtreeNode<T> where T : DBody {
 
     private int size;
-    private Vector2f position;
+    private Vector2F position;
     private List<T> objects;
 
     public QuadtreeNode<T> parent;
     public QuadtreeNode<T>[] children;
 
-    public QuadtreeNode(int size, Vector2f position, QuadtreeNode<T> parent) {
+    public QuadtreeNode(int size, Vector2F position, QuadtreeNode<T> parent) {
         this.size = size;
         this.position = position;
         this.parent = parent;
@@ -26,13 +26,13 @@ public class QuadtreeNode<T> where T : DBody {
         get { return this.size; }
     }
 
-    public Vector2f Position {
+    public Vector2F Position {
         get { return this.position; }
     }
 
-    public Vector2f Center {
+    public Vector2F Center {
         get {
-            return this.position + Vector2f.One * (size / 2);
+            return this.position + Vector2F.One * (size / 2);
         }
     }
 
@@ -61,8 +61,8 @@ public class QuadtreeNode<T> where T : DBody {
 
     public bool Intersects(DCollider collider) {
         DBoxCollider bbox = (collider.Type == ColliderType.Box) ? (DBoxCollider)collider : ((DCircleCollider)collider).BoundingBox;
-        Vector2f min = position;
-        Vector2f max = position + Vector2f.One * size;
+        Vector2F min = position;
+        Vector2F max = position + Vector2F.One * size;
 
         if (max.x < bbox.Min.x || min.x > bbox.Max.x) return false;
         if (max.y < bbox.Min.y || min.y > bbox.Max.y) return false;

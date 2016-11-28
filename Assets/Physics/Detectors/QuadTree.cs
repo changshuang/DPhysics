@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using FixedPointMath;
+using FixedMath;
 
 /// <summary>
 /// Generic quadtree, used for spatial subdivision and collision detection.
@@ -8,17 +8,17 @@ using FixedPointMath;
 /// <typeparam name="T">type inheriting from DBody</typeparam>
 public class QuadTree<T> where T : DBody {
 
-    private static Vector2f[] OFFSET = new Vector2f[] {
-        new Vector2f(0, 0),
-        new Vector2f(0, 1),
-        new Vector2f(1, 0),
-        new Vector2f(1, 1)
+    private static Vector2F[] OFFSET = new Vector2F[] {
+        new Vector2F(0, 0),
+        new Vector2F(0, 1),
+        new Vector2F(1, 0),
+        new Vector2F(1, 1)
     };
 
     private QuadtreeNode<T> root;
     private int minSize;
 
-    public QuadTree(int minSize, int maxSize, Vector2f origin) {
+    public QuadTree(int minSize, int maxSize, Vector2F origin) {
         this.minSize = minSize;
         root = new QuadtreeNode<T>(maxSize, origin, null);
     }
@@ -27,7 +27,7 @@ public class QuadTree<T> where T : DBody {
         get { return root.Size; }
     }
 
-    public Vector2f Origin {
+    public Vector2F Origin {
         get { return root.Position; }
     }
 
@@ -120,7 +120,7 @@ public class QuadTree<T> where T : DBody {
     private void Split(QuadtreeNode<T> node) {
         int childSize = node.Size / 2;
         for (int i = 0; i < 4; i++) {
-            Vector2f childPosition = node.Position + OFFSET[i] * childSize;
+            Vector2F childPosition = node.Position + OFFSET[i] * childSize;
             node.children[i] = new QuadtreeNode<T>(childSize, childPosition, node);
         }
     }

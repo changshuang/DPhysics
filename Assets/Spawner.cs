@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class Spawner : MonoBehaviour {
 
@@ -10,10 +9,10 @@ public class Spawner : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        int size = PhysicsEngine.Instance.sceneWidth;
-        int range = size - 50;
-        for (int i = 0; i < instances; i++) {
-            Instantiate(circle, new Vector3(Random.value * range+25, 0, Random.value * range+25), Quaternion.identity);
+        for (int x = 8; x < 60; x += 2) {
+            for (int y = 8; y < 60; y += 2) {
+                Instantiate(circle, new Vector3(x, 0, y), Quaternion.identity);
+            }
         }
 	}
 	

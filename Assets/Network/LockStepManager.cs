@@ -1,40 +1,36 @@
 ﻿using UnityEngine;
-using System.Collections;
-using FixedPointMath;
+using FixedMath;
 
 public class LockStepManager : MonoBehaviour {
 
-    private PhysicsEngine physics;
+    private DWorld physics;
 
     //game update frequency in ms
     private const int rate = 50;
 
-    private float accumulator;
-    private float fixedDelta;
-    private intf fixedDeltaF;
+    private Fix32 accumulator;
+    private Fix32 fixedDelta;
 
     void Awake() {
-        this.accumulator = 0;
-        this.fixedDelta = rate / (float)1000; 
-        this.fixedDeltaF = intf.Create(fixedDelta);
-        print(fixedDelta);
+        this.accumulator = Fix32.Zero;
+        this.fixedDelta = (Fix32)(rate / (float)1000); 
     }
 
 	void Start () {
-        this.physics = PhysicsEngine.Instance;
+        this.physics = DWorld.Instance;
 	}
 	
 	// Updates the physics
 	void Update () {
-        float delta = Time.deltaTime;
-        if (delta > 0.25f)
-            delta = 0.25f;
+        Fix32 delta = (Fix32)Time.deltaTime;
+        if (delta > (Fix32)0.25f)
+            delta = (Fix32)0.25f;
         this.accumulator += delta;
 
         while (accumulator >= fixedDelta) {
-            physics.Step(fixedDeltaF);
+            physics.Step(fixedDelta);
             accumulator -= fixedDelta;
         }
-        PhysicsEngine.alpha = accumulator / fixedDelta;
+        DWorld.alpha = (float)(accumulator / fixedDelta);
 	}
 }

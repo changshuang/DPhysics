@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
-using FixedPointMath;
 using System.Collections;
+using FixedMath;
 
 /// <summary>
 /// Monobehaviour component used to define a new physics object.
@@ -21,12 +21,12 @@ public class DBodyComponent : MonoBehaviour {
         this.colliderComponent = GetComponent<ColliderComponent>();
         body = new DBody(
             colliderComponent.RequireCollider(),
-            new Vector2f(transform.position),
-            intf.Create(mass),
-            intf.Create(restitution),
-            intf.Create(friction)
+            new Vector2F(transform.position),
+            (Fix32)mass,
+            (Fix32)restitution,
+            (Fix32)friction
             );
-        PhysicsEngine.Instance.AddObject(body);
+        DWorld.Instance.AddObject(body);
 
         //update position
         StartCoroutine(UpdatePosition());
@@ -36,7 +36,7 @@ public class DBodyComponent : MonoBehaviour {
         Vector2 direction = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         if (direction != Vector2.zero) {
             direction *= 10;
-            body.AddForce(new Vector2f(direction));
+            body.AddForce(new Vector2F(direction));
         }
 
         //commented this part because of the coroutine
@@ -56,7 +56,7 @@ public class DBodyComponent : MonoBehaviour {
 
     private IEnumerator UpdatePosition() {
         while (true) {
-            if (body.IsSleeping() || body.IsFixed())
+            if (body.IsFixed())
                 yield return null;
 
             this.transform.position = body.InterpolatedPosition();

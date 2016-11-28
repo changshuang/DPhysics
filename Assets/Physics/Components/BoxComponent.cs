@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using FixedPointMath;
+using FixedMath;
 
 /// <summary>
 /// Monobehaviour component for a box collider.
@@ -34,8 +34,8 @@ public class BoxComponent : ColliderComponent {
     /// <returns>a deterministic collider</returns>
     public override DCollider RequireCollider() {
         Vector2 global = new Vector2(transform.position.x, transform.position.z);
-        Vector2f fmin = (Vector2f)(min + global);
-        Vector2f fmax = (Vector2f)(max + global);
+        Vector2F fmin = (Vector2F)(min + global);
+        Vector2F fmax = (Vector2F)(max + global);
         return new DBoxCollider(fmin, fmax, isTrigger);
     }
 }

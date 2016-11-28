@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using FixedPointMath;
+using FixedMath;
 
 /// <summary>
 /// Monobehaviour component for circle colliders.
@@ -26,7 +26,7 @@ public class CircleComponent : ColliderComponent {
     /// <returns>a deterministic circle collider</returns>
     public override DCollider RequireCollider() {
         Vector2 global = new Vector2(transform.position.x, transform.position.z);
-        Vector2f ctr = (Vector2f)(global + center);
-        return new DCircleCollider(ctr, intf.Create(radius), isTrigger);
+        Vector2F ctr = (Vector2F)(global + center);
+        return new DCircleCollider(ctr, (Fix32)radius, isTrigger);
     }
 }

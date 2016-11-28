@@ -1,14 +1,18 @@
-﻿using FixedPointMath;
+﻿using FixedMath;
 
 /// <summary>
 /// Class representing a collider manifold, with all the info about the collision.
 /// </summary>
 public class Manifold {
 
-    private DBody objA;
-    private DBody objB;
-    private Vector2f normal;
-    private intf distance;
+    private DBody bodyA;
+    private DBody bodyB;
+    private Vector2F normal;
+    private Fix32 penetration;
+    private Fix32 restitution;
+    private Fix32 totalInvMass;
+    private Fix32 bias;
+
     private int hash;
     private bool trigger;
 
@@ -19,12 +23,12 @@ public class Manifold {
     /// <param name="b">second rigid body</param>
     /// <param name="normal">collision normal</param>
     /// <param name="distance">penetration</param>
-    public Manifold(DBody a, DBody b, Vector2f normal, intf distance)
+    public Manifold(DBody a, DBody b, Vector2F normal, Fix32 penetration)
     {
-        this.objA = a;
-        this.objB = b;
+        this.bodyA = a;
+        this.bodyB = b;
         this.normal = normal;
-        this.distance = distance;
+        this.penetration = penetration;
         this.trigger = false;
         GenerateHash();
     }
@@ -35,8 +39,8 @@ public class Manifold {
     /// <param name="a">first object</param>
     /// <param name="b">second object</param>
     public Manifold(DBody a, DBody b) {
-        this.objA = a;
-        this.objB = b;
+        this.bodyA = a;
+        this.bodyB = b;
         this.trigger = true;
         GenerateHash();
     }
@@ -44,15 +48,15 @@ public class Manifold {
     /// <summary>
     /// Returns the collision normal
     /// </summary>
-    public Vector2f Normal {
+    public Vector2F Normal {
         get { return this.normal; }
     }
 
     /// <summary>
     /// Returns the penetration.
     /// </summary>
-    public intf Distance {
-        get { return this.distance; }
+    public Fix32 Distance {
+        get { return this.penetration; }
     }
 
     /// <summary>
@@ -60,7 +64,7 @@ public class Manifold {
     /// </summary>
     /// <returns>the first body</returns>
     public DBody GetA() {
-        return this.objA;
+        return this.bodyA;
     }
 
     /// <summary>
@@ -68,7 +72,7 @@ public class Manifold {
     /// </summary>
     /// <returns>the second body</returns>
     public DBody GetB() {
-        return this.objB;
+        return this.bodyB;
     }
 
     /// <summary>
@@ -79,44 +83,27 @@ public class Manifold {
         return this.trigger;
     }
 
+    public void Init(Fix32 invDelta) {
+        totalInvMass = bodyA.InvMass + bodyB.InvMass;
+        bias = -DWorld.PENETRATION_CORRECTION * invDelta * Fix32.Min((Fix32)0, -penetration + DWorld.PENETRATION_SLOP);
+        restitution = Fix32.Min(bodyA.Restitution, bodyB.Restitution);
+    }
+
     /// <summary>
     /// Resolve the collision by calculating the resulting velocity, using the
     /// given normal and penetration, stored in the intersection.
     /// </summary>
     /// <param name="collision">Intersection instance containing all the collision data.</param>
     public void ApplyImpulse() {
+        Vector2F dv = bodyB.Velocity - bodyA.Velocity;
+        Fix32 vn = Vector2F.Dot(dv, normal);
 
-        //both objects have infinite mass, return
-        if (objA.Mass + objB.Mass == 0) {
-            objA.Velocity = Vector2f.Zero;
-            objB.Velocity = Vector2f.Zero;
-            return;
-        }
+        Fix32 imp = ((-((Fix32)1 +restitution) * vn) + bias) / totalInvMass;
+        imp = Fix32.Max(imp, (Fix32)0);
 
-        Vector2f rv = objB.Velocity - objA.Velocity;
-        intf normalVel = Vector2f.Dot(rv, normal);
-
-        if (normalVel > 0)
-            return;
-
-        intf e = FixedMath.Min(objA.Restitution, objB.Restitution);
-        intf j = (-(1 + e) * normalVel) / (objA.InvMass + objB.InvMass);
-
-        Vector2f impulse = normal * j;
-        objA.Velocity -= impulse * objA.InvMass;
-        objB.Velocity += impulse * objB.InvMass;
-    }
-
-    /// <summary>
-    /// Corrects the position by a small percentage, with a small amount of tolerance.
-    /// </summary>
-    public void CorrectPosition() {
-        intf totInvMass = objA.InvMass + objB.InvMass;
-        intf penetration = FixedMath.Max(distance - PhysicsEngine.PENETRATION_SLOP, (intf)0);
-        Vector2f corr = normal * (penetration / totInvMass) * PhysicsEngine.PENETRATION_CORRECTION;
-
-        objA.Transform(-corr * objA.InvMass);
-        objB.Transform(corr * objB.InvMass);
+        Vector2F impulse = normal * imp;
+        bodyA.Velocity -= impulse * bodyA.InvMass;
+        bodyB.Velocity += impulse * bodyB.InvMass;
     }
 
     /// <summary>
@@ -135,14 +122,14 @@ public class Manifold {
     public override bool Equals(object obj) {
         if (obj is Manifold) {
             Manifold other = (Manifold)obj;
-            return ((objA.Equals(other.objA) && objB.Equals(other.objB)) ||
-                    (objA.Equals(other.objB) && objB.Equals(other.objB)));
+            return ((bodyA.Equals(other.bodyA) && bodyB.Equals(other.bodyB)) ||
+                    (bodyA.Equals(other.bodyB) && bodyB.Equals(other.bodyB)));
         }
         return false;
     }
 
     public override string ToString() {
-        return "Collision <" + objA + ", " + objB + ">";
+        return "Collision <" + bodyA + ", " + bodyB + ">";
     }
 
     /// <summary>
@@ -150,8 +137,8 @@ public class Manifold {
     /// symmetric pairs. The relatively small number of physics bodies inside the scene allows the use of integers.
     /// </summary>
     private void GenerateHash() {
-        int hashA = objA.GetHashCode();
-        int hashB = objB.GetHashCode();
+        int hashA = bodyA.GetHashCode();
+        int hashB = bodyB.GetHashCode();
         int a, b;
         if (hashA >= hashB) {
             a = hashA;

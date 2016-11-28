@@ -1,4 +1,4 @@
-﻿using FixedPointMath;
+﻿using FixedMath;
 
 /// <summary>
 /// Class representing a generic collider. Every new collider must inherit from this class.
@@ -75,7 +75,7 @@ public abstract class DCollider {
     /// Abstract function to get the position of the collider.
     /// </summary>
     /// <returns>The position of the collider.</returns>
-    public abstract Vector2f GetPosition();
+    public abstract Vector2F GetPosition();
 
     /// <summary>
     /// Gets the minimum bounding box for this collider.
@@ -88,7 +88,7 @@ public abstract class DCollider {
     /// Transforms the current position using the given amount.
     /// </summary>
     /// <param name="translation">the translation.</param>
-    public abstract void Transform(Vector2f translation);
+    public abstract void Transform(Vector2F translation);
 
     /// <summary>
     /// Abstract function for intersections with circles.

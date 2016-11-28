@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 /// <summary>
 /// Interface for collision detectors.
@@ -39,5 +37,5 @@ public interface ICollisionDetector {
     /// Gets all the collisions inside the structure.
     /// </summary>
     /// <returns>hash set containing the collision data</returns>
-    void FindPotentialCollisions(HashSet<Manifold> contacts);
+    void FindCollisions(HashSet<Manifold> contacts);
 }

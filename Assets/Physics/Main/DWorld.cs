@@ -1,20 +1,21 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using FixedPointMath;
+using FixedMath;
 
 /// <summary>
 /// Class defining the physics engine core.
 /// </summary>
-public class PhysicsEngine : MonoBehaviour{
+public class DWorld : MonoBehaviour{
 
     //physics constants
     public const int MAX_BODIES = 4096;
     public const int ITERATIONS = 1;
-    public static readonly intf EPSILON = intf.Create(0.0001);
-    public static readonly intf SQR_EPSILON = EPSILON * EPSILON;
-    public static readonly intf PENETRATION_CORRECTION = intf.Create(0.4);
-    public static readonly intf PENETRATION_SLOP = intf.Create(0.04);
-    public static readonly Vector2f GRAVITY = new Vector2f(0, 0);
+    public const bool IMP_ACCUM = false;
+    public static readonly Fix32 EPSILON = (Fix32)0.0001;
+    public static readonly Fix32 SQR_EPSILON = EPSILON * EPSILON;
+    public static readonly Fix32 PENETRATION_CORRECTION = (Fix32)0.2;
+    public static readonly Fix32 PENETRATION_SLOP = (Fix32)0.01;
+    public static readonly Vector2F GRAVITY = new Vector2F(0, -10);
     
     public int sceneWidth;
     public int sceneHeight;
@@ -22,7 +23,7 @@ public class PhysicsEngine : MonoBehaviour{
     public bool draw;
 
     public static float alpha;
-    private static PhysicsEngine instance;
+    private static DWorld instance;
     private static int bodyCount;
 
     private List<DBody> bodies;
@@ -80,7 +81,7 @@ public class PhysicsEngine : MonoBehaviour{
     /// <summary>
     /// Returns the singleton instance for the engine.
     /// </summary>
-    public static PhysicsEngine Instance {
+    public static DWorld Instance {
         get { return instance; }
     }
 
@@ -95,27 +96,38 @@ public class PhysicsEngine : MonoBehaviour{
         obj.SetID(bodyCount);
         bodyCount++;
         this.bodies.Add(obj);
+        detector.Insert(obj);
     }
 
     /// <summary>
     /// Main physics loop, find collisions, resolve them and move the bodies.
     /// </summary>
     /// <param name="delta"> amount of time for this simulation step</param>
-    public void Step(intf delta) {
+    public void Step(Fix32 delta) {
         if (!simulate)
             return;
+
         contacts.Clear();
+        Fix32 invDelta = (delta > Fix32.Zero) ? (Fix32)1 / delta : Fix32.Zero;
 
-        //apply forces and integrate
+        //integrate forces
+        Profiler.BeginSample("Integrate forces");
         foreach (DBody body in bodies) {
-            if (!body.IsFixed() && !body.IsSleeping()) {
-                integrator.Integrate(body, delta);
-            }
-        }
+            if (body.IsFixed())
+                continue;
 
-        //find collisions
-        detector.Build(bodies);
-        detector.FindPotentialCollisions(contacts);
+            integrator.IntegrateForces(body, delta);
+        }
+        Profiler.EndSample();
+
+        Profiler.BeginSample("Find collisions");
+        detector.FindCollisions(contacts);
+        Profiler.EndSample();
+     
+        //init collision manifolds
+        foreach (Manifold contact in contacts) {
+            contact.Init(invDelta);
+        }
 
         //resolve collisions
         for (uint i = 0; i < ITERATIONS; i++) {
@@ -124,10 +136,16 @@ public class PhysicsEngine : MonoBehaviour{
             }
         }
 
-        //TODO fix positional correction (jittering and not properly working)
-        /*correct positions
-        foreach (Manifold contact in contacts) {
-            contact.CorrectPosition();
-        }*/
+        //integrate velocities
+        foreach (DBody body in bodies) {
+            if (body.IsFixed())
+                continue;
+
+            Profiler.BeginSample("Remove-Integrate-Insert");
+            detector.Remove(body);
+            integrator.IntegrateVelocities(body, delta);
+            detector.Insert(body);
+            Profiler.EndSample();
+        }
     }
 }

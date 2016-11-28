@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using FixedPointMath;
+using FixedMath;
 using System;
 
 /// <summary>
@@ -18,7 +18,7 @@ public class QuadTreeDetector : ICollisionDetector{
     /// <param name="minSize">minimum node size</param>
     public QuadTreeDetector(int maxSize, int minSize) {
         Debug.Log("size:" + maxSize + " leaf size: " + minSize);
-        tree = new QuadTree<DBody>(minSize, maxSize, Vector2f.Zero);
+        tree = new QuadTree<DBody>(minSize, maxSize, Vector2F.Zero);
     }
 
     /// <summary>
@@ -41,7 +41,7 @@ public class QuadTreeDetector : ICollisionDetector{
     /// Gets a set of all the collisions in the structure.
     /// </summary>
     /// <returns>hash set of intersections</returns>
-    public void FindPotentialCollisions(HashSet<Manifold> contacts) {
+    public void FindCollisions(HashSet<Manifold> contacts) {
         tree.FindCollisions(contacts);
     }
 
