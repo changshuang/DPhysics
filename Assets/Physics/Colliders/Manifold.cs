@@ -98,7 +98,7 @@ public class Manifold {
         Vector2F dv = bodyB.Velocity - bodyA.Velocity;
         Fix32 vn = Vector2F.Dot(dv, normal);
 
-        Fix32 imp = ((-((Fix32)1 +restitution) * vn) + bias) / totalInvMass;
+        Fix32 imp = ((-((Fix32)1 +restitution) * vn + bias)) / totalInvMass;
         imp = Fix32.Max(imp, (Fix32)0);
 
         Vector2F impulse = normal * imp;

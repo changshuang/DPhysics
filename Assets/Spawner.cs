@@ -9,8 +9,8 @@ public class Spawner : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        for (int x = 8; x < 60; x += 2) {
-            for (int y = 8; y < 60; y += 2) {
+        for (int x = 6; x < 30; x += 1) {
+            for (int y = 6; y <30; y += 1) {
                 Instantiate(circle, new Vector3(x, 0, y), Quaternion.identity);
             }
         }

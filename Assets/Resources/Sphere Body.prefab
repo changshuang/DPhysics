@@ -93,7 +93,7 @@ MonoBehaviour:
   speed: 10
   mass: 1
   restitution: 0
-  friction: 9
+  friction: 0.8
 --- !u!114 &114000010518889046
 MonoBehaviour:
   m_ObjectHideFlags: 1

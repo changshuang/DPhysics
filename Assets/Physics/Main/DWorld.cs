@@ -13,9 +13,9 @@ public class DWorld : MonoBehaviour{
     public const bool IMP_ACCUM = false;
     public static readonly Fix32 EPSILON = (Fix32)0.0001;
     public static readonly Fix32 SQR_EPSILON = EPSILON * EPSILON;
-    public static readonly Fix32 PENETRATION_CORRECTION = (Fix32)0.2;
+    public static readonly Fix32 PENETRATION_CORRECTION = (Fix32)0.4;
     public static readonly Fix32 PENETRATION_SLOP = (Fix32)0.01;
-    public static readonly Vector2F GRAVITY = new Vector2F(0, -10);
+    public static readonly Vector2F GRAVITY = new Vector2F(0, 0);
     
     public int sceneWidth;
     public int sceneHeight;
@@ -67,7 +67,7 @@ public class DWorld : MonoBehaviour{
     }
 
     /// <summary>
-    /// Draw the quadtree.
+    /// Draw the detection structure.
     /// </summary>
     void OnDrawGizmos() {
         Vector3 center = new Vector3(sceneWidth / 2, 0, sceneHeight / 2);

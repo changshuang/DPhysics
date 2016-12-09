@@ -18,7 +18,7 @@ public class DBody {
     private Fix32 mass;
     private Fix32 invMass;
     private Fix32 restitution;
-    private Fix32 friction;
+    private Fix32 drag;
 
     /// <summary>
     /// Creates a new rigid body with the given parameters.
@@ -27,15 +27,15 @@ public class DBody {
     /// <param name="position">the current position in the space</param>
     /// <param name="mass">the object's mass</param>
     /// <param name="restitution">the "bounciness"</param>
-    /// <param name="friction">amount of friction</param>
-    public DBody(DCollider collider, Vector2F position, Fix32 mass, Fix32 restitution, Fix32 friction) {
+    /// <param name="drag">amount of friction</param>
+    public DBody(DCollider collider, Vector2F position, Fix32 mass, Fix32 restitution, Fix32 drag) {
         this.collider = collider;
         this.position = position;
         this.prevPosition = position;
         this.mass = mass;
         this.invMass = (mass > Fix32.Zero) ? ((Fix32)1 / mass) : (Fix32)0;
         this.restitution = restitution;
-        this.friction = friction / (Fix32)10;
+        this.drag = drag;
         this.collider.Body = this;
     }
 
@@ -114,8 +114,8 @@ public class DBody {
         get { return this.force; }
     }
 
-    public Fix32 Friction {
-        get { return this.friction; }
+    public Fix32 Drag {
+        get { return this.drag; }
     }
 
     /// <summary>

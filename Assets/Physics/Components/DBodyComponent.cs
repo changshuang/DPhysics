@@ -11,7 +11,7 @@ public class DBodyComponent : MonoBehaviour {
 
     public float mass;
     public float restitution;
-    public float friction;
+    public float drag;
 
     private ColliderComponent colliderComponent;
     private DBody body;
@@ -24,7 +24,7 @@ public class DBodyComponent : MonoBehaviour {
             new Vector2F(transform.position),
             (Fix32)mass,
             (Fix32)restitution,
-            (Fix32)friction
+            (Fix32)drag
             );
         DWorld.Instance.AddObject(body);
 
@@ -35,7 +35,7 @@ public class DBodyComponent : MonoBehaviour {
     void Update() {
         Vector2 direction = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         if (direction != Vector2.zero) {
-            direction *= 10;
+            direction *= 2;
             body.AddForce(new Vector2F(direction));
         }
 

@@ -28,6 +28,8 @@ namespace FixedMath {
         public static readonly Fix32 MinValue = new Fix32(long.MinValue);
         public static readonly Fix32 One = new Fix32(ONE);
         public static readonly Fix32 Zero = new Fix32(0L);
+        private static readonly Fix32 Half = (One >> 1);
+        private static readonly Fix32 ThreeHalfs = (One + Half);
 
         private long rawValue;
 
@@ -189,23 +191,52 @@ namespace FixedMath {
 
         #region MathFunctions
 
+        /// <summary>
+        /// Returns the absolute value of the given fixed point number.
+        /// </summary>
+        /// <param name="val">the given value</param>
+        /// <returns>the absolute value</returns>
         public static Fix32 Abs(Fix32 val) {
             long mask = val.rawValue >> (NBITS-1);
             return new Fix32((val.rawValue + mask) ^ mask);
         }
 
+        /// <summary>
+        /// Clamps the number between the given maximum and minimum.
+        /// </summary>
+        /// <param name="val">the given value</param>
+        /// <returns>the clamped value</returns>
         public static Fix32 Clamp(Fix32 val, Fix32 min, Fix32 max) {
             return (val > max) ? max : (val < min) ? min : val;
         }
 
+        /// <summary>
+        /// Gets the maximum value between the given ones.
+        /// </summary>
+        /// <param name="a">first value</param>
+        /// <param name="b">second value</param>
+        /// <returns>max value</returns>
         public static Fix32 Max(Fix32 a, Fix32 b) {
             return (a > b) ? a : b;
         }
 
+        /// <summary>
+        /// Gets the minimum value between the given ones.
+        /// </summary>
+        /// <param name="a">first value</param>
+        /// <param name="b">second value</param>
+        /// <returns>min value</returns>
         public static Fix32 Min(Fix32 a, Fix32 b) {
             return (a < b) ? a : b;
         }
 
+        /// <summary>
+        /// Approximates the squared root, with a precision determined by the 
+        /// amount of iterations.
+        /// </summary>
+        /// <param name="val">the given value</param>
+        /// <param name="iterations">number of iterations</param>
+        /// <returns>Approximation of the squared root.</returns>
         public static Fix32 Sqrt(Fix32 val, int iterations) {
             if (val.rawValue < 0)
                 throw new ArithmeticException("Negative value");
@@ -223,8 +254,29 @@ namespace FixedMath {
             return res;
         }
 
+        /// <summary>
+        /// Computes the squared root with a fixed amount of iterations.
+        /// </summary>
+        /// <param name="val">the given value</param>
+        /// <returns>(Approximation of) the squared root of the value</returns>
         public static Fix32 Sqrt(Fix32 val) {
             return Sqrt(val, NSQRT);
+        }
+
+        /// <summary>
+        /// "relatively fast" inverse square root, inspired by John Carmack's
+        /// Fast Inverse Sqrt from Quake.
+        /// It uses the Newton's method of approximation to guess a value pretty close to the exact one.
+        /// </summary>
+        /// <param name="val">the given value</param>
+        /// <returns>approximation of the inverse square root</returns>
+        public static Fix32 InvSqrt(Fix32 val) {
+            Fix32 halfval = val >> 1;
+            Fix32 g = halfval;
+            for (ushort i = 0; i < 8; i++) {
+                g = g * (ThreeHalfs - halfval * g * g);
+            }
+            return g;
         }
 
         #endregion

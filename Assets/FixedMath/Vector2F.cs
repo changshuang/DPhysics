@@ -2,6 +2,10 @@
 using FixedMath;
 
 namespace FixedMath {
+
+    /// <summary>
+    /// Struct representing a point in 2D space, using fixed point math.
+    /// </summary>
     public struct Vector2F {
         public Fix32 x;
         public Fix32 y;
@@ -66,8 +70,9 @@ namespace FixedMath {
 
         public Vector2F Normalized {
             get {
-                this.Normalize();
-                return this;
+                Vector2F v = new Vector2F(this.x, this.y);
+                v.Normalize();
+                return v;
             }
         }
 
@@ -145,30 +150,66 @@ namespace FixedMath {
                 );
         }
 
+        /// <summary>
+        /// Returns a vector containing the absolute value of its components.
+        /// </summary>
         public static Vector2F Abs(Vector2F v) {
             return new Vector2F(Fix32.Abs(v.x), Fix32.Abs(v.y));
         }
 
+        /// <summary>
+        /// Clamps the x and y components of the given vector inside the min and max components.
+        /// </summary>
+        /// <param name="value">the vector to clamp</param>
+        /// <param name="min">min x and y</param>
+        /// <param name="max">max x and y</param>
+        /// <returns>clamped vector</returns>
         public static Vector2F Clamp(Vector2F value, Vector2F min, Vector2F max) {
             value.x = Fix32.Clamp(value.x, min.x, max.x);
             value.y = Fix32.Clamp(value.y, min.y, max.y);
             return value;
         }
 
+        /// <summary>
+        /// Returns the euclidean distance between two coordinates.
+        /// Note: Heavier than DistanceSquared, because of the Sqrt call.
+        /// </summary>
+        /// <param name="v1">first position</param>
+        /// <param name="v2">second position</param>
+        /// <returns>distance between the points</returns>
         public static Fix32 Distance(Vector2F v1, Vector2F v2) {
             return Fix32.Sqrt(DistanceSquared(v1, v2));
         }
 
+        /// <summary>
+        /// Returns the squared distance between the points.
+        /// Use this function when the actual distance value is not important.
+        /// </summary>
+        /// <param name="v1">first position</param>
+        /// <param name="v2">second position</param>
+        /// <returns>squared distance between the two</returns>
         public static Fix32 DistanceSquared(Vector2F v1, Vector2F v2) {
             Fix32 x = v1.x - v2.x;
             Fix32 y = v1.y - v2.y;
             return (x * x + y * y);
         }
 
+        /// <summary>
+        /// Calculates the dot product between the two vectors.
+        /// </summary>
+        /// <param name="v1">first vector</param>
+        /// <param name="v2">second vector</param>
+        /// <returns>value indicating the dot product.</returns>
         public static Fix32 Dot(Vector2F v1, Vector2F v2) {
             return v1.x * v2.x + v1.y * v2.y;
         }
 
+        /// <summary>
+        /// Creates a new vector using the maximum value components of the given vectors.
+        /// </summary>
+        /// <param name="v1">first vector</param>
+        /// <param name="v2">second vector</param>
+        /// <returns>vector containing max x and y from the other two</returns>
         public static Vector2F Max(Vector2F v1, Vector2F v2) {
             return new Vector2F(
                 Fix32.Max(v1.x, v2.x),
@@ -176,6 +217,12 @@ namespace FixedMath {
                 );
         }
 
+        /// <summary>
+        /// Creates a new vector using the minimum value components of the given vectors.
+        /// </summary>
+        /// <param name="v1">first vector</param>
+        /// <param name="v2">second vector</param>
+        /// <returns>vector containing min x and y from the other two</returns>
         public static Vector2F Min(Vector2F v1, Vector2F v2) {
             return new Vector2F(
                 Fix32.Min(v1.x, v2.x),
@@ -183,35 +230,58 @@ namespace FixedMath {
                 );
         }
 
+        /// <summary>
+        /// Normalizes this vector, using the inverse square root for faster calculations.
+        /// </summary>
         public void Normalize() {
-            Fix32 length = this.Magnitude;
-            if (length == Fix32.Zero) {
-                this = Vector2F.Zero;
-            }
-            this.x /= length;
-            this.y /= length;
+            Fix32 sqrMag = this.SqrtMagnitude;
+            Fix32 invMag = (sqrMag > Fix32.Zero) ? Fix32.InvSqrt(sqrMag) : Fix32.Zero;
+            this.x *= invMag;
+            this.y *= invMag;
         }
 
+        /// <summary>
+        /// Returns the Vector2 (float) equivalent of this vector.
+        /// </summary>
+        /// <returns>Vector2 converted</returns>
         public Vector2 ToVector2() {
             float a = (float)x;
             float b = (float)y;
             return new Vector2(a, b);
         }
 
+        /// <summary>
+        /// Returns the Vector3 (float) equivalent of this vector, using x and z as axis.
+        /// </summary>
+        /// <returns>A Vector3</returns>
         public Vector3 ToVector3() {
             float a = (float)x;
             float b = (float)y;
             return new Vector3(a, 0, b);
         }
 
+        /// <summary>
+        /// Checks whether the given object is a vector2F and if it has the same component values
+        /// of this one.
+        /// </summary>
+        /// <param name="obj">the given object</param>
+        /// <returns>true if it's a vector with the same component values, false otherwise</returns>
         public override bool Equals(object obj) {
             return (obj is Vector2F) ? (this == (Vector2F)obj) : false;
         }
 
+        /// <summary>
+        /// Gets the hashcode of this vector.
+        /// </summary>
+        /// <returns>the sum of the x and y hashcodes.</returns>
         public override int GetHashCode() {
             return (x.GetHashCode() + y.GetHashCode());
         }
 
+        /// <summary>
+        /// Returns a string containing the x and y components of this vector.
+        /// </summary>
+        /// <returns>string of the vector</returns>
         public override string ToString() {
             return "(" + x + ", " + y + ")";
         }
